@@ -1,20 +1,12 @@
 import { StatusBar } from 'expo-status-bar';
-import { StyleSheet, Text, View } from 'react-native';
+import { Text, View } from 'react-native';
+import styles from './styles';  // Importamos el archivo de estilos
 
 export default function App() {
   return (
     <View style={styles.container}>
-      <Text>1 2 3 probandoooo</Text>
+      <Text style={styles.text}>Bienvenido a Nexo Educativo</Text>
       <StatusBar style="auto" />
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#fff',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-});
