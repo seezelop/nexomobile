@@ -10,10 +10,10 @@ const styles = StyleSheet.create({
   text: {
     fontSize: 30, // Tamaño de fuente más grande
     fontWeight: 'bold',
-    color: '#000000', // Color de texto oscuro y elegante
+    color: '#000000', // Color de texto 
     textAlign: 'center',
     padding: 20,
-    backgroundColor: '#f6de91', // color fondo 
+    backgroundColor: '#f1d558', // color fondo 
     borderRadius: 10, // Bordes redondeados
     shadowColor: '#000', // Sombra para dar profundidad
     shadowOffset: { width: 0, height: 2 },
