@@ -3,7 +3,7 @@ import { StyleSheet } from 'react-native';
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f1c858', // Fondo claro y moderno
+    backgroundColor: '#f6e791', // Fondo claro y moderno
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -13,7 +13,7 @@ const styles = StyleSheet.create({
     color: '#000000', // Color de texto 
     textAlign: 'center',
     padding: 20,
-    backgroundColor: '#f1d558', // color fondo 
+    backgroundColor: '#faf3cb', // color fondo 
     borderRadius: 10, // Bordes redondeados
     shadowColor: '#000', // Sombra para dar profundidad
     shadowOffset: { width: 0, height: 2 },
