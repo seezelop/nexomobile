@@ -3,17 +3,17 @@ import { StyleSheet } from 'react-native';
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f6e791', // Fondo claro y moderno
+    backgroundColor: '#6360AE', // color de fondo
     alignItems: 'center',
     justifyContent: 'center',
   },
   text: {
     fontSize: 30, // Tamaño de fuente más grande
     fontWeight: 'bold',
-    color: '#000000', // Color de texto 
+    color: '#fff', // Color de texto 
     textAlign: 'center',
     padding: 20,
-    backgroundColor: '#faf3cb', // color fondo 
+    backgroundColor: '#7958A5', // color fondo 
     borderRadius: 10, // Bordes redondeados
     shadowColor: '#000', // Sombra para dar profundidad
     shadowOffset: { width: 0, height: 2 },
