@@ -20,6 +20,24 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.1,
     shadowRadius: 6,
     elevation: 5, // Sombra en Android
+    marginBottom: 20, // Espaciado debajo del texto
+  },
+  button: {
+    backgroundColor: '#AE4390', // Color para el botón
+    paddingVertical: 12,
+    paddingHorizontal: 30,
+    borderRadius: 10, // Bordes redondeados
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 6,
+    elevation: 5, // Sombra en Android
+  },
+  buttonText: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    color: '#fff', // Texto blanco
+    textAlign: 'center',
   },
 });
 
