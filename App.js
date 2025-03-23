@@ -13,16 +13,8 @@ function HomeScreen({ navigation }) {
       <Text style={[styles.text, styles.welcomeText]}>Bienvenido a Nexo Educativo</Text>
 
       
-      <TouchableOpacity style={styles.button} onPress={() => alert('¡BienvenidoSKII!')}>
-        <Text style={styles.buttonText}>Comenzandooo</Text>
-      </TouchableOpacity>
-
-      <TouchableOpacity style={styles.button} onPress={() => navigation.navigate('GestionAsistencia')}>
-        <Text style={styles.buttonText}>Gestionar Asistencia Alumnos</Text>
-      </TouchableOpacity>
-
-      <TouchableOpacity style={styles.button} onPress={() => navigation.navigate('GestionAsistenciaProfesor')}>
-        <Text style={styles.buttonText}>Gestionar Asistencia Profesores</Text>
+      <TouchableOpacity style={styles.button} onPress={() => navigation.navigate('Login')}>
+        <Text style={styles.buttonText}>Comenzar</Text>
       </TouchableOpacity>
 
       <StatusBar style="auto" />
@@ -30,18 +22,13 @@ function HomeScreen({ navigation }) {
   );
 }
 
-// Configurar el Stack Navigator
-const Stack = createStackNavigator();
-
 export default function App() {
   return (
     <NavigationContainer>
-      <Stack.Navigator>
-        <Stack.Screen name="Home" component={HomeScreen} options={{ title: 'Inicio' }} />
-        <Stack.Screen name="GestionAsistencia" component={GestionarAsistenciaAlumnos} options={{ title: 'Gestión de Asistencia Alumnos' }} />
-        <Stack.Screen name="GestionAsistenciaProfesor" component={GestionarAsistenciaProfesor} options={{ title: 'Gestión de Asistencia Profesores' }} />
+      <Stack.Navigator screenOptions={{ headerShown: false }}>
+        <Stack.Screen name="Home" component={HomeScreen} />
+        <Stack.Screen name="Login" component={Login} />
       </Stack.Navigator>
     </NavigationContainer>
   );
 }
-
