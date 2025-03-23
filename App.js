@@ -3,7 +3,7 @@ import { Text, View, TouchableOpacity } from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
 import styles from './styles';
-import Login from './Login'; 
+import Login from './componentes/pages/Login'; 
 
 const Stack = createStackNavigator();
 

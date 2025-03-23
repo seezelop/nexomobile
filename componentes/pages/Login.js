@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet } from 'react-native';
-import styles from './styles';
+import styles from '../../styles';
 
 export default function Login({ navigation }) {
   // Estados para manejar los valores del formulario
