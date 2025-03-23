@@ -1,13 +1,27 @@
 import React from 'react';
-import { View, Text, StyleSheet } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
+import { useNavigation } from '@react-navigation/native';
 
 function Profesor() {
+  const navigation = useNavigation();
+
   return (
     <View style={styles.container}>
       <Text style={styles.title}>Bienvenido Profesor</Text>
-      <Text style={styles.subtitle}>
-        Accede a los materiales educativos, asigna calificaciones y gestiona actividades de los alumnos.
-      </Text>
+    
+      <TouchableOpacity 
+        style={styles.button} 
+        onPress={() => navigation.navigate('AltaComunicacion')}
+      >
+        <Text style={styles.buttonText}>Alta Comunicación</Text>
+      </TouchableOpacity>
+
+      <TouchableOpacity 
+        style={styles.button} 
+        onPress={() => navigation.navigate('ABMEventos')}
+      >
+        <Text style={styles.buttonText}>ABM Eventos</Text>
+      </TouchableOpacity>
     </View>
   );
 }
@@ -27,6 +41,21 @@ const styles = StyleSheet.create({
   subtitle: {
     fontSize: 18,
     textAlign: 'center',
+    marginBottom: 30,
+  },
+  button: {
+    backgroundColor: '#007bff',
+    paddingVertical: 12,
+    paddingHorizontal: 20,
+    borderRadius: 8,
+    marginBottom: 15,
+    width: '80%',
+    alignItems: 'center',
+  },
+  buttonText: {
+    color: '#fff',
+    fontSize: 16,
+    fontWeight: 'bold',
   },
 });
 
