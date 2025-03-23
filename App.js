@@ -32,7 +32,7 @@ export default function App() {
     <NavigationContainer>
       <Stack.Navigator>
         <Stack.Screen name="Home" component={HomeScreen} options={{ title: 'Inicio' }} />
-        <Stack.Screen name="GestionAsistencia" component={GestionarAsistenciaAlumnos} options={{ title: 'Gestiiiión de Asistencia' }} />
+        <Stack.Screen name="GestionAsistencia" component={GestionarAsistenciaAlumnos} options={{ title: 'Gestión de Asistencia' }} />
       </Stack.Navigator>
     </NavigationContainer>
   );
