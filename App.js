@@ -9,7 +9,8 @@ import GestionarAsistenciaAlumnos from './componentes/pages/GestionarAsistenciaA
 function HomeScreen({ navigation }) {
   return (
     <View style={styles.container}>
-      <Text style={styles.text}>Bienvenido a Nexo Educativo</Text>
+      <Text style={[styles.text, styles.welcomeText]}>Bienvenido a Nexo Educativo</Text>
+
       
       <TouchableOpacity style={styles.button} onPress={() => alert('¡BienvenidoSKII!')}>
         <Text style={styles.buttonText}>Comenzandooo</Text>
