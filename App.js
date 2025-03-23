@@ -4,6 +4,7 @@ import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
 import styles from './styles';  
 import GestionarAsistenciaAlumnos from './componentes/pages/GestionarAsistenciaAlumno';
+import GestionarAsistenciaProfesor from './componentes/pages/GestionarAsistenteciaProfesor';
 
 // Componente Principal
 function HomeScreen({ navigation }) {
@@ -20,6 +21,10 @@ function HomeScreen({ navigation }) {
         <Text style={styles.buttonText}>Gestionar Asistencia Alumnos</Text>
       </TouchableOpacity>
 
+      <TouchableOpacity style={styles.button} onPress={() => navigation.navigate('GestionAsistenciaProfesor')}>
+        <Text style={styles.buttonText}>Gestionar Asistencia Profesores</Text>
+      </TouchableOpacity>
+
       <StatusBar style="auto" />
     </View>
   );
@@ -33,7 +38,8 @@ export default function App() {
     <NavigationContainer>
       <Stack.Navigator>
         <Stack.Screen name="Home" component={HomeScreen} options={{ title: 'Inicio' }} />
-        <Stack.Screen name="GestionAsistencia" component={GestionarAsistenciaAlumnos} options={{ title: 'Gestión de Asistencia' }} />
+        <Stack.Screen name="GestionAsistencia" component={GestionarAsistenciaAlumnos} options={{ title: 'Gestión de Asistencia Alumnos' }} />
+        <Stack.Screen name="GestionAsistenciaProfesor" component={GestionarAsistenciaProfesor} options={{ title: 'Gestión de Asistencia Profesores' }} />
       </Stack.Navigator>
     </NavigationContainer>
   );
