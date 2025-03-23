@@ -12,9 +12,6 @@ const styles = StyleSheet.create({
     textShadowRadius: 4,
   },
   
-
-
-
   container: {
     flex: 1,
     backgroundColor: '#6360AE', // color de fondo
@@ -75,6 +72,48 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     marginBottom: 10,
   },
+  tabContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-around',
+    marginBottom: 16,
+  },
+  tabButton: {
+    padding: 10,
+    borderRadius: 5,
+    backgroundColor: '#e0e0e0',
+  },
+  activeTab: {
+    backgroundColor: '#007bff',
+  },
+  tabText: {
+    color: '#000',
+  },
+  card: {
+    padding: 16,
+    borderRadius: 5,
+    backgroundColor: '#f8f9fa',
+    marginBottom: 16,
+  },
+  row: {
+    flexDirection: 'column',
+    marginBottom: 16,
+  },
+  picker: {
+    height: 50,
+    width: '100%',
+    marginBottom: 16,
+  },
+  successText: {
+    color: 'green',
+    marginBottom: 16,
+  },
+  warningText: {
+    color: 'orange',
+    textAlign: 'center',
+    marginTop: 16,
+  },
+
+
 });
 
 export default styles;
