@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { View, Text, TextInput, Button, Picker, Alert, StyleSheet } from 'react-native';
-import DateTimePicker from '@react-native-community/datetimepicker';
+// import DateTimePicker from '@react-native-community/datetimepicker';    ESTA DEPENDENCIA ES NECESARIA PERO ESTA TRAYENDO PROBLEMAS SU UTILIZACION
 
 function AltaEvento() {
   const [descripcion, setDescripcion] = useState('');
