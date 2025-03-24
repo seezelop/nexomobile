@@ -25,7 +25,8 @@ function HomeScreen({ navigation }) {
 
 export default function App() {
   return (
-    <UserProvider>  // Envolvemos toda la aplicación con el contexto
+    // Envolvemos toda la aplicación con el contexto
+    <UserProvider>  
       <NavigationContainer>
         <Stack.Navigator screenOptions={{ headerShown: false }}>
           <Stack.Screen name="Home" component={HomeScreen} />
