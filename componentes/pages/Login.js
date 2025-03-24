@@ -1,5 +1,5 @@
 import React, { useState, useContext } from 'react';
-import { View, Text, TextInput, TouchableOpacity, StyleSheet } from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert } from 'react-native';
 import { UserContext } from '../../context/UserContext';  // Importa el contexto
 import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -61,9 +61,11 @@ export default function Login({ navigation }) {
           case 'jefe colegio':
             navigation.navigate('JefeColegio');
             break;
-          // ... otros casos de navegación
+            case 'preceptor':
+              navigation.navigate('Preceptor');
+              break;
           default:
-            Alert.alert('Error', 'Rol no reconocido');
+            Alert.alert('Error', 'Rol no reconocido'+userRole.toLowerCase());
         }
       }
     } catch (error) {

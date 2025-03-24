@@ -1,23 +1,34 @@
-import React from 'react';
-import { View, Text, StyleSheet, ScrollView, Button } from 'react-native';
+import React from "react";
+import { View, Text, Button, StyleSheet } from "react-native";
+import { useNavigation } from '@react-navigation/native'
 
 function Preceptor() {
+  const navigation = useNavigation();  // Hook para redirigir a otra pantalla
+
+  const redirigirAlumno = () => {
+    navigation.navigate('GestionarAsistenciaAlumnos');  // Redirige a la pantalla de seleccionar curso
+  };
+
+  const redirigirProfesor = () => {
+    navigation.navigate('GestionarAsistenciaProfesor');  // Redirige a la pantalla de seleccionar curso
+  };
+
   return (
-    <ScrollView contentContainerStyle={styles.container}>
-      <View style={styles.content}>
-        <Text style={styles.title}>Bienvenido Preceptor</Text>
+    <View style={styles.container}>
+      <Text style={styles.title}>Bienvenido Preceptor</Text>
 
-        {/* Botón para gestionar asistencia de alumnos */}
-        <View style={styles.buttonContainer}>
-          <Button title="Gestionar Asistencia Alumnos" onPress={() => { /* Lógica de navegación o acción */ }} />
-        </View>
+      <Button
+        title="Gestionar Asistencia de Alumnos"
+        onPress={redirigirAlumno}
+        color="#007bff"
+      />
 
-        {/* Botón para gestionar asistencia de profesores */}
-        <View style={styles.buttonContainer}>
-          <Button title="Gestionar Asistencia Profesores" onPress={() => { /* Lógica de navegación o acción */ }} />
-        </View>
-      </View>
-    </ScrollView>
+      <Button
+        title="Gestionar Asistencia de Profesores"
+        onPress={redirigirProfesor}
+        color="#007bff"
+      />
+    </View>
   );
 }
 

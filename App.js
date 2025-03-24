@@ -8,6 +8,7 @@ import Login from './componentes/pages/Login';
 import { UserProvider } from './context/UserContext';  // Importa el contexto
 import JefeColegio from './componentes/pages/JefeColegio';
 import GestionarAsistenciaAlumnos from './componentes/pages/GestionarAsistenciaAlumnos';
+import GestionarAsistenciaProfesor from './componentes/pages/GestionarAsistenciaProfesor';
 import ABMEvento from './componentes/pages/ABMEvento';
 import AltaComunicacion from './componentes/pages/AltaComunicacion';
 import AltaEvento from './componentes/pages/AltaEvento';
@@ -48,6 +49,7 @@ export default function App() {
           <Stack.Screen name="Login" component={Login} />
           <Stack.Screen name="JefeColegio" component={JefeColegio} />
           <Stack.Screen name="GestionarAsistenciaAlumnos" component={GestionarAsistenciaAlumnos} />
+          <Stack.Screen name="GestionarAsistenciaProfesor" component={GestionarAsistenciaProfesor} />
           <Stack.Screen name="ABMEvento" component={ABMEvento} />
           <Stack.Screen name="AltaComunicacion" component={AltaComunicacion} />
           <Stack.Screen name="AltaEvento" component={AltaEvento} />

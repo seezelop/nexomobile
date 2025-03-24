@@ -1,6 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, TextInput, Button, Picker, FlatList, CheckBox, Alert, ActivityIndicator } from 'react-native';
+import { View, Text, FlatList, ActivityIndicator, StyleSheet } from 'react-native';
+import { Checkbox, Button, Provider as PaperProvider } from 'react-native-paper';
+import { Picker } from '@react-native-picker/picker';
 import axios from 'axios';
+import { API_BASE_URL } from '../url';
 
 const GestionarAsistenciaAlumnos = () => {
   const [cursos, setCursos] = useState([]);
@@ -14,17 +17,21 @@ const GestionarAsistenciaAlumnos = () => {
   const [loading, setLoading] = useState(false);
   const [mensaje, setMensaje] = useState({ text: '', type: '' });
 
-  // Cargar los cursos al iniciar el componente
   useEffect(() => {
     fetchCursos();
   }, []);
 
-  // Obtener los cursos asignados al preceptor
+  const axiosInstance = axios.create({
+    baseURL: API_BASE_URL,
+    withCredentials: true,
+    headers: {
+      'Content-Type': 'application/json',
+    }
+  });
+
   const fetchCursos = async () => {
     try {
-      const response = await axios.get('http://localhost:8080/api/usuario/verCursoPreceptor', {
-        withCredentials: true,
-      });
+      const response = await axiosInstance.get('api/usuario/verCursoPreceptor');
       setCursos(response.data);
     } catch (error) {
       console.error('Error al obtener cursos:', error);
@@ -32,45 +39,35 @@ const GestionarAsistenciaAlumnos = () => {
     }
   };
 
-  // Obtener los alumnos del curso seleccionado
   const fetchAlumnos = async (cursoId) => {
     if (!cursoId) return;
 
     setLoading(true);
     try {
-      const response = await axios.get(`http://localhost:8080/api/usuario/verAlumnosCurso/${cursoId}`, {
-        withCredentials: true,
-      });
-
+      const response = await axiosInstance.get(`api/usuario/verAlumnosCurso/${cursoId}`);
       const alumnosData = response.data;
-      setAlumnos(alumnosData);
 
-      // Inicializar el estado de asistencia para cada alumno
       const asistenciaInicial = alumnosData.map(alumno => ({
         idUsuario: alumno.id_usuario,
-        asistio: 0, // Ausente por defecto
+        asistio: 0,
         mediaFalta: 0,
         retiroAntes: 0,
       }));
 
+      setAlumnos(alumnosData);
       setAsistencia(asistenciaInicial);
-      setLoading(false);
     } catch (error) {
-      console.error('Error al obtener alumnos:', error);
-      setMensaje({ text: 'Hubo un error al cargar los alumnos del curso.', type: 'danger' });
+      console.error('Error:', error);
+    } finally {
       setLoading(false);
     }
   };
 
-  // Obtener fechas de asistencias
   const fetchFechasAsistencias = async (cursoId) => {
     if (!cursoId) return;
 
     try {
-      const response = await axios.get(
-        `http://localhost:8080/api/usuario/obtenerAsistencias/${cursoId}`,
-        { withCredentials: true }
-      );
+      const response = await axiosInstance.get(`api/usuario/obtenerAsistencias/${cursoId}`);
       setFechasAsistencias(response.data);
     } catch (error) {
       console.error('Error al obtener fechas de asistencias:', error);
@@ -78,7 +75,6 @@ const GestionarAsistenciaAlumnos = () => {
     }
   };
 
-  // Manejar el cambio de curso seleccionado
   const handleCursoChange = (itemValue) => {
     setCursoSeleccionado(itemValue);
     if (itemValue) {
@@ -89,16 +85,12 @@ const GestionarAsistenciaAlumnos = () => {
     }
   };
 
-  // Manejar el cambio de alumno seleccionado
   const handleAlumnoChange = (itemValue) => {
     setAlumnoSeleccionado(itemValue);
   };
 
-  // Manejar el cambio de fecha seleccionada
   const handleFechaChange = (itemValue) => {
     setIdAsistenciaSeleccionada(itemValue);
-
-    // Encontrar la fecha correspondiente al ID de asistencia seleccionado
     const asistenciaSeleccionada = fechasAsistencias.find(a => a.idAsistencia === parseInt(itemValue));
     if (asistenciaSeleccionada) {
       setFechaSeleccionada(asistenciaSeleccionada.fecha);
@@ -107,37 +99,23 @@ const GestionarAsistenciaAlumnos = () => {
     }
   };
 
-  // Manejar cambios en la asistencia de un alumno
-  const handleAsistenciaChange = (index, field, value) => {
+  const handleAsistenciaChange = (index, field) => {
     const updatedAsistencia = [...asistencia];
-
-    if (field === 'asistio') {
-      updatedAsistencia[index] = {
-        ...updatedAsistencia[index],
-        asistio: value,
-        mediaFalta: value === 1 ? 0 : updatedAsistencia[index].mediaFalta,
-        retiroAntes: value === 1 ? 0 : updatedAsistencia[index].retiroAntes,
-      };
-    } else if (field === 'mediaFalta') {
-      updatedAsistencia[index] = {
-        ...updatedAsistencia[index],
-        mediaFalta: value,
-        asistio: value === 1 ? 0 : updatedAsistencia[index].asistio,
-        retiroAntes: value === 1 ? 0 : updatedAsistencia[index].retiroAntes,
-      };
-    } else if (field === 'retiroAntes') {
-      updatedAsistencia[index] = {
-        ...updatedAsistencia[index],
-        retiroAntes: value,
-        asistio: value === 1 ? 0 : updatedAsistencia[index].asistio,
-        mediaFalta: value === 1 ? 0 : updatedAsistencia[index].mediaFalta,
-      };
-    }
-
+    
+    // Reset all values first
+    updatedAsistencia[index] = {
+      ...updatedAsistencia[index],
+      asistio: 0,
+      mediaFalta: 0,
+      retiroAntes: 0,
+    };
+    
+    // Then set the selected field to 1
+    updatedAsistencia[index][field] = 1;
+    
     setAsistencia(updatedAsistencia);
   };
 
-  // Enviar la asistencia al backend (Tomar Asistencia)
   const handleSubmit = async () => {
     if (!cursoSeleccionado) {
       setMensaje({ text: 'Debe seleccionar un curso.', type: 'warning' });
@@ -176,69 +154,158 @@ const GestionarAsistenciaAlumnos = () => {
   };
 
   return (
-    <View style={{ padding: 20 }}>
-      <Text style={{ fontSize: 24, fontWeight: 'bold' }}>Tomar Asistencia</Text>
+    <PaperProvider>
+      <View style={styles.container}>
+        <Text style={styles.titulo}>Tomar Asistencia</Text>
 
-      {mensaje.text && (
-        <Text style={{ color: mensaje.type === 'danger' ? 'red' : 'green', marginVertical: 10 }}>
-          {mensaje.text}
-        </Text>
-      )}
+        {mensaje.text && (
+          <Text style={mensaje.type === 'danger' ? styles.error : styles.success}>
+            {mensaje.text}
+          </Text>
+        )}
 
-      <View style={{ marginVertical: 20 }}>
-        <Text>Seleccionar Curso</Text>
-        <Picker
-          selectedValue={cursoSeleccionado}
-          onValueChange={handleCursoChange}
-          style={{ height: 50, width: 250 }}
-        >
-          <Picker.Item label="Seleccione un curso" value="" />
-          {cursos.map((curso) => (
-            <Picker.Item key={curso.idCurso} label={`${curso.numero}${curso.division}`} value={curso.idCurso} />
-          ))}
-        </Picker>
+        <View style={styles.pickerContainer}>
+          <Text>Seleccionar Curso</Text>
+          <Picker
+            selectedValue={cursoSeleccionado}
+            onValueChange={handleCursoChange}
+            style={styles.picker}
+          >
+            <Picker.Item label="Seleccione un curso" value="" />
+            {cursos.map((curso) => (
+              <Picker.Item
+                key={curso.idCurso}
+                label={`${curso.numero}${curso.division}`}
+                value={curso.idCurso}
+              />
+            ))}
+          </Picker>
+        </View>
+
+        {alumnos.length > 0 ? (
+          <>
+            <Text style={styles.subtitulo}>Lista de Alumnos</Text>
+            <FlatList
+              data={alumnos}
+              keyExtractor={(item) => item.id_usuario.toString()}
+              renderItem={({ item, index }) => (
+                <View style={styles.alumnoContainer}>
+                  <Text style={styles.nombreAlumno}>
+                    {item.nombre} {item.apellido}
+                  </Text>
+
+                  <View style={styles.checkboxGroup}>
+                    {/* Checkbox Presente */}
+                    <View style={styles.checkboxContainer}>
+                      <Checkbox
+                        status={asistencia[index]?.asistio === 1 ? 'checked' : 'unchecked'}
+                        onPress={() => handleAsistenciaChange(index, 'asistio')}
+                        color="#6200ee"
+                      />
+                      <Text style={styles.checkboxLabel}>Presente</Text>
+                    </View>
+
+                    {/* Checkbox Media Falta */}
+                    <View style={styles.checkboxContainer}>
+                      <Checkbox
+                        status={asistencia[index]?.mediaFalta === 1 ? 'checked' : 'unchecked'}
+                        onPress={() => handleAsistenciaChange(index, 'mediaFalta')}
+                        color="#6200ee"
+                      />
+                      <Text style={styles.checkboxLabel}>Media Falta</Text>
+                    </View>
+
+                    {/* Checkbox Retiro */}
+                    <View style={styles.checkboxContainer}>
+                      <Checkbox
+                        status={asistencia[index]?.retiroAntes === 1 ? 'checked' : 'unchecked'}
+                        onPress={() => handleAsistenciaChange(index, 'retiroAntes')}
+                        color="#6200ee"
+                      />
+                      <Text style={styles.checkboxLabel}>Retiro</Text>
+                    </View>
+                  </View>
+                </View>
+              )}
+            />
+            
+            <Button 
+              mode="contained" 
+              onPress={handleSubmit}
+              style={styles.boton}
+              loading={loading}
+            >
+              Registrar Asistencia
+            </Button>
+          </>
+        ) : loading ? (
+          <ActivityIndicator size="large" color="#6200ee" />
+        ) : null}
       </View>
-
-      {alumnos.length > 0 ? (
-        <>
-          <Text style={{ fontSize: 18, fontWeight: 'bold' }}>Lista de Alumnos</Text>
-          <FlatList
-            data={alumnos}
-            keyExtractor={(item) => item.id_usuario.toString()}
-            renderItem={({ item, index }) => (
-              <View style={{ flexDirection: 'row', alignItems: 'center', marginVertical: 10 }}>
-                <Text style={{ flex: 1 }}>{item.nombre} {item.apellido}</Text>
-                <CheckBox
-                  value={asistencia[index]?.asistio === 1}
-                  onValueChange={(value) =>
-                    handleAsistenciaChange(index, 'asistio', value ? 1 : 0)
-                  }
-                />
-                <Text>Presente</Text>
-                <CheckBox
-                  value={asistencia[index]?.mediaFalta === 1}
-                  onValueChange={(value) =>
-                    handleAsistenciaChange(index, 'mediaFalta', value ? 1 : 0)
-                  }
-                />
-                <Text>Media Falta</Text>
-                <CheckBox
-                  value={asistencia[index]?.retiroAntes === 1}
-                  onValueChange={(value) =>
-                    handleAsistenciaChange(index, 'retiroAntes', value ? 1 : 0)
-                  }
-                />
-                <Text>Retiro antes</Text>
-              </View>
-            )}
-          />
-          <Button title="Registrar Asistencia" onPress={handleSubmit} />
-        </>
-      ) : loading ? (
-        <ActivityIndicator size="large" color="#0000ff" />
-      ) : null}
-    </View>
+    </PaperProvider>
   );
 };
+
+const styles = StyleSheet.create({
+  container: {
+    padding: 20,
+    backgroundColor: '#fff',
+  },
+  titulo: {
+    fontSize: 24,
+    fontWeight: 'bold',
+    marginBottom: 20,
+    color: '#6200ee',
+  },
+  subtitulo: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    marginVertical: 15,
+  },
+  pickerContainer: {
+    marginVertical: 15,
+  },
+  picker: {
+    height: 50,
+    width: '100%',
+  },
+  alumnoContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingVertical: 12,
+    borderBottomWidth: 1,
+    borderBottomColor: '#eee',
+  },
+  nombreAlumno: {
+    flex: 2,
+    fontSize: 14,
+  },
+  checkboxGroup: {
+    flex: 3,
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+  },
+  checkboxContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  checkboxLabel: {
+    marginLeft: 8,
+    fontSize: 12,
+  },
+  boton: {
+    marginTop: 20,
+    backgroundColor: '#6200ee',
+  },
+  error: {
+    color: 'red',
+    marginVertical: 10,
+  },
+  success: {
+    color: 'green',
+    marginVertical: 10,
+  },
+});
 
 export default GestionarAsistenciaAlumnos;
