@@ -3,6 +3,7 @@ import { View, Text, TextInput, TouchableOpacity, StyleSheet } from 'react-nativ
 import { UserContext } from '../../context/UserContext';  // Importa el contexto
 import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { API_BASE_URL } from '../url';
 
 export default function Login({ navigation }) {
   const [username, setUsername] = useState('');
@@ -12,7 +13,7 @@ export default function Login({ navigation }) {
 
   const handleSubmit = async () => {
     try {
-      const loginResponse = await fetch("http://localhost:8080/login", {
+      const loginResponse = await fetch(`${API_BASE_URL}/login`, {
         method: "POST",
         headers: {
           'Content-Type': 'application/x-www-form-urlencoded',
@@ -26,12 +27,12 @@ export default function Login({ navigation }) {
 
       if (loginResponse.ok) {
         // Obtener el rol del usuario
-        const roleResponse = await axios.get('http://localhost:8080/api/usuario/getRolUsuarioLogueado', { withCredentials: true });
+        const roleResponse = await axios.get(`${API_BASE_URL}/api/usuario/getRolUsuarioLogueado`, { withCredentials: true });
         const userRole = roleResponse.data.split(': ')[1];  // Obtener el rol
         saveUserRole(userRole);  // Usa saveUserRole
 
         // Obtener más información del usuario
-        const infoResponse = await axios.get('http://localhost:8080/auth/info', { withCredentials: true });
+        const infoResponse = await axios.get(`${API_BASE_URL}/auth/info`, { withCredentials: true });
         setInfoSesion(infoResponse.data);
 
         // Guardar el rol en AsyncStorage
