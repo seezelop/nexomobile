@@ -36,6 +36,7 @@ export default function Login({ navigation }) {
 
         // Guardar el rol en AsyncStorage
         await AsyncStorage.setItem('rol', userRole);
+        console.log('EL INFO RESPONSE: '+JSON.stringify(infoResponse))
 
         // Redireccionar según el rol del usuario
         switch (userRole) {
