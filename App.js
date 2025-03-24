@@ -7,6 +7,7 @@ import styles from './styles';
 import Login from './componentes/pages/Login'; 
 import { UserProvider } from './context/UserContext';  // Importa el contexto
 import JefeColegio from './componentes/pages/JefeColegio';
+import GestionarAsistenciaAlumnos from './componentes/pages/GestionarAsistenciaAlumnos';
 
 const Stack = createStackNavigator();
 
@@ -18,9 +19,13 @@ function HomeScreen({ navigation }) {
       <TouchableOpacity style={styles.button} onPress={() => navigation.navigate('Login')}>
         <Text style={styles.buttonText}>Comenzar</Text>
       </TouchableOpacity>
-
+    
       <StatusBar style="auto" />
     </View>
+
+    
+
+
   );
 }
 
@@ -33,6 +38,7 @@ export default function App() {
           <Stack.Screen name="Home" component={HomeScreen} />
           <Stack.Screen name="Login" component={Login} />
           <Stack.Screen name="JefeColegio" component={JefeColegio} />
+          <Stack.Screen name="Gestionar Asistencia Alumnos" component={GestionarAsistenciaAlumnos} />
         </Stack.Navigator>
       </NavigationContainer>
     </UserProvider>
