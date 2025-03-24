@@ -8,71 +8,90 @@ import { API_BASE_URL } from '../url';
 export default function Login({ navigation }) {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
-  const [error, setError] = useState('');
-  const { setUserRole: saveUserRole, setInfoSesion } = useContext(UserContext);  // Accede al contexto y usa saveUserRole
+  const [error, setError] = useState(''); // Añadido estado de error
+  const { setUserRole, setInfoSesion } = useContext(UserContext);
+
+  // Configura axios con opciones por defecto
+  const axiosInstance = axios.create({
+    baseURL: API_BASE_URL,
+    withCredentials: true,
+    headers: {
+      'Content-Type': 'application/x-www-form-urlencoded',
+    }
+  });
 
   const handleSubmit = async () => {
     try {
-      const loginResponse = await fetch(`${API_BASE_URL}/login`, {
-        method: "POST",
-        headers: {
-          'Content-Type': 'application/x-www-form-urlencoded',
-        },
-        body: new URLSearchParams({
+      // Envía las credenciales usando axios en lugar de fetch
+      const loginResponse = await axiosInstance.post('/login', 
+        new URLSearchParams({
           username: username,
-          password: password,
+          password: password
         }),
-        credentials: "include",
-      });
+        {
+          // Configura explícitamente las credenciales
+          headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+          },
+          withCredentials: true
+        }
+      );
 
-      if (loginResponse.ok) {
-        // Obtener el rol del usuario
-        const roleResponse = await axios.get(`${API_BASE_URL}/api/usuario/getRolUsuarioLogueado`, { withCredentials: true });
-        const userRole = roleResponse.data.split(': ')[1];  // Obtener el rol
-        saveUserRole(userRole);  // Usa saveUserRole
+      // Verifica la respuesta
+      if (loginResponse.status === 200) {
+        // Obtiene el rol del usuario
+        const roleResponse = await axiosInstance.get('/api/usuario/getRolUsuarioLogueado');
+        const userRole = roleResponse.data.split(': ')[1];
 
-        // Obtener más información del usuario
-        const infoResponse = await axios.get(`${API_BASE_URL}/auth/info`, { withCredentials: true });
+        // Obtiene información de la sesión
+        const infoResponse = await axiosInstance.get('/auth/info');
+        
+        // Guarda la información en el contexto
+        setUserRole(userRole);
         setInfoSesion(infoResponse.data);
 
-        // Guardar el rol en AsyncStorage
-        await AsyncStorage.setItem('rol', userRole);
-        console.log('EL INFO RESPONSE: '+JSON.stringify(infoResponse))
+        // Guarda el rol en AsyncStorage
+        await AsyncStorage.setItem('userRole', userRole);
 
-        // Redireccionar según el rol del usuario
-        // Redireccionar según el rol del usuario
+        // Navega según el rol
         switch (userRole.toLowerCase()) {
           case 'super admin':
             navigation.navigate('Admin');
             break;
-          case 'jefe colegio':  // Si el rol es "jefe colegio", navega a la pantalla
+          case 'jefe colegio':
             navigation.navigate('JefeColegio');
             break;
-          case 'administrativo':
-            navigation.navigate('Administrativo');
+          // ... otros casos de navegación
+          default:
+            Alert.alert('Error', 'Rol no reconocido');
+        }
+      }
+    } catch (error) {
+      console.error('Login Error:', error);
+      
+      // Manejo de errores más detallado
+      if (error.response) {
+        // El servidor respondió con un estado de error
+        switch (error.response.status) {
+          case 401:
+            Alert.alert('Error', 'Credenciales inválidas');
             break;
-          case 'preceptor':
-            navigation.navigate('Preceptor');
+          case 403:
+            Alert.alert('Error', 'Acceso prohibido');
             break;
-          case 'profesor':
-            navigation.navigate('Profesor');
-            break;
-          case 'padre':
-            navigation.navigate('Padre');
-            break;
-          case 'alumno':
-            navigation.navigate('Alumno');
+          case 500:
+            Alert.alert('Error', 'Error interno del servidor');
             break;
           default:
-            setError('Rol no reconocido');
+            Alert.alert('Error', 'Error de autenticación');
         }
-
+      } else if (error.request) {
+        // La solicitud fue hecha pero no se recibió respuesta
+        Alert.alert('Error', 'Sin respuesta del servidor');
       } else {
-        setError('Credenciales incorrectas');
+        // Algo sucedió al configurar la solicitud
+        Alert.alert('Error', 'Error al configurar la solicitud');
       }
-    } catch (e) {
-      console.error("Error en la solicitud", e);
-      setError('Error al conectar con el servidor');
     }
   };
 
