@@ -6,6 +6,7 @@ import { createStackNavigator } from '@react-navigation/stack';
 import styles from './styles';
 import Login from './componentes/pages/Login'; 
 import { UserProvider } from './context/UserContext';  // Importa el contexto
+import JefeColegio from './componentes/pages/JefeColegio';
 
 const Stack = createStackNavigator();
 
@@ -31,6 +32,7 @@ export default function App() {
         <Stack.Navigator screenOptions={{ headerShown: false }}>
           <Stack.Screen name="Home" component={HomeScreen} />
           <Stack.Screen name="Login" component={Login} />
+          <Stack.Screen name="JefeColegio" component={JefeColegio} />
         </Stack.Navigator>
       </NavigationContainer>
     </UserProvider>

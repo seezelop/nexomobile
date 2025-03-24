@@ -38,31 +38,33 @@ export default function Login({ navigation }) {
         await AsyncStorage.setItem('rol', userRole);
 
         // Redireccionar según el rol del usuario
-        switch (userRole) {
+        // Redireccionar según el rol del usuario
+        switch (userRole.toLowerCase()) {
           case 'super admin':
-            navigation.navigate('AdminDashboard');
+            navigation.navigate('Admin');
             break;
-          case 'jefe colegio':
-            navigation.navigate('JefeColegioDashboard');
+          case 'jefe colegio':  // Si el rol es "jefe colegio", navega a la pantalla
+            navigation.navigate('JefeColegio');
             break;
           case 'administrativo':
-            navigation.navigate('AdministrativoDashboard');
+            navigation.navigate('Administrativo');
             break;
           case 'preceptor':
-            navigation.navigate('PreceptorDashboard');
+            navigation.navigate('Preceptor');
             break;
           case 'profesor':
-            navigation.navigate('ProfesorDashboard');
+            navigation.navigate('Profesor');
             break;
           case 'padre':
-            navigation.navigate('PadreDashboard');
+            navigation.navigate('Padre');
             break;
           case 'alumno':
-            navigation.navigate('AlumnoDashboard');
+            navigation.navigate('Alumno');
             break;
           default:
             setError('Rol no reconocido');
         }
+
       } else {
         setError('Credenciales incorrectas');
       }
