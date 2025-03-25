@@ -1,18 +1,24 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { View, Text, ActivityIndicator, StyleSheet } from "react-native";
+import { API_BASE_URL } from '../url';
 
 function CantInasistenciasAlumno() {
   const [inasistencias, setInasistencias] = useState(null);
   const [cargando, setCargando] = useState(true);
   const [error, setError] = useState(null);
 
+  const axiosInstance = axios.create({
+    baseURL: API_BASE_URL,
+    withCredentials: true,
+    headers: {
+      'Content-Type': 'application/json',
+    },
+  });
   useEffect(() => {
     const obtenerInasistencias = async () => {
       try {
-        const response = await axios.get("http://localhost:8080/api/usuario/cantInasistenciasAlumno", {
-          withCredentials: true,
-        });
+        const response = await axiosInstance.get('/api/usuario/cantInasistenciasAlumno')
 
         setInasistencias(response.data);
       } catch (error) {

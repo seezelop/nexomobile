@@ -11,7 +11,7 @@ function Alumno({ navigation }) {
   };
 
   const irAInasistencias = () => {
-    navigation.navigate('cantInasistenciasAlumno');
+    navigation.navigate('CantInasistenciasAlumno');
   };
 
   return (
