@@ -1,9 +1,9 @@
 import React from "react";
 import { View, Text, Button, StyleSheet } from "react-native";
-import { useNavigation } from '@react-navigation/native'
+import { useNavigation } from '@react-navigation/native';
 
-function Preceptor() {
-  const navigation = useNavigation();  // Hook para redirigir a otra pantalla
+function Preceptor({ navigation }) {
+ // const navigation = useNavigation();
 
   const redirigirAlumno = () => {
     navigation.navigate('GestionarAsistenciaAlumnos');
@@ -21,48 +21,36 @@ function Preceptor() {
     <View style={styles.container}>
       <Text style={styles.title}>Bienvenido Preceptor</Text>
 
-      <Button
-        title="Gestionar Asistencia de Alumnos"
-        onPress={redirigirAlumno}
-        color="#007bff"
-      />
-
-      <Button
-        title="Gestionar Asistencia de Profesores"
-        onPress={redirigirProfesor}
-        color="#007bff"
-      />
-
-      <Button
-        title="Chats"
-        onPress={redirigirChat}
-        color="#007bff"
-      />
+      <View style={styles.buttonContainer}>
+        <Button title="Gestionar Asistencia de Alumnos" onPress={redirigirAlumno} />
+      </View>
+      <View style={styles.buttonContainer}>
+        <Button title="Gestionar Asistencia de Profesores" onPress={redirigirProfesor} />
+      </View>
+      <View style={styles.buttonContainer}>
+        <Button title="Chats" onPress={redirigirChat} />
+      </View>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
-    flexGrow: 1,
-    justifyContent: 'center',
-    padding: 20,
-  },
-  content: {
     flex: 1,
-    alignItems: 'center',
     justifyContent: 'center',
-    paddingHorizontal: 10,
+    alignItems: 'center',
+    padding: 20,
   },
   title: {
     fontSize: 24,
     fontWeight: 'bold',
-    marginBottom: 20, // Espacio entre el título y los botones
+    marginBottom: 20,
   },
   buttonContainer: {
-    marginVertical: 10, // Espacio entre los botones
     width: '100%',
+    marginTop: 10,
   },
 });
 
 export default Preceptor;
+

@@ -66,6 +66,8 @@ export default function Login({ navigation }) {
               break;
             case 'alumno':
               navigation.navigate('Alumno')
+            case 'profesor':
+              navigation.navigate('Profesor')
           
         }
       }

@@ -4,6 +4,8 @@ import BajaEvento from './BajaEvento';
 import ModificarEvento from './ModificarEvento';
 import { ScrollView, View, Text, StyleSheet } from 'react-native';
 
+
+
 function ABMEvento() {
   return (
     <ScrollView contentContainerStyle={styles.container}>

@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import { View, Text, TextInput, Button, Picker, Alert, StyleSheet } from 'react-native';
-// import DateTimePicker from '@react-native-community/datetimepicker';    ESTA DEPENDENCIA ES NECESARIA PERO ESTA TRAYENDO PROBLEMAS SU UTILIZACION
-
+import { View, Text, TextInput, Button, Alert, StyleSheet } from 'react-native';
+ import DateTimePicker from '@react-native-community/datetimepicker';    //ESTA DEPENDENCIA ES NECESARIA PERO ESTA TRAYENDO PROBLEMAS SU UTILIZACION
+import { API_BASE_URL } from '../url';
+import { Picker } from '@react-native-picker/picker';
 function AltaEvento() {
   const [descripcion, setDescripcion] = useState('');
   const [fecha, setFecha] = useState(new Date());
@@ -10,6 +11,14 @@ function AltaEvento() {
   const [cursoSeleccionado, setCursoSeleccionado] = useState('');
   const [cargando, setCargando] = useState(false);
   const [respuesta, setRespuesta] = useState('');
+
+  const axiosInstance = axios.create({
+    baseURL: API_BASE_URL,
+    withCredentials: true,
+    headers: {
+      'Content-Type': 'application/json',
+    },
+  });
 
   // Cargar cursos al montar el componente
   useEffect(() => {
@@ -20,7 +29,7 @@ function AltaEvento() {
   const cargarCursos = async () => {
     setCargando(true);
     try {
-      const response = await axios.get('http://localhost:8080/api/usuario/verCursoProfesor', {
+      const response = await axiosInstance.get('/api/usuario/verCursoProfesor', {
         withCredentials: true,
       });
       setCursos(response.data);
@@ -46,11 +55,11 @@ function AltaEvento() {
   const manejarEnvio = async () => {
     const fechaObj = formatDateForBackend(fecha);
     try {
-      await axios.post(`http://localhost:8080/api/usuario/altaEvento/${cursoSeleccionado}`, {
+      await axiosInstance.post(`/api/usuario/altaEvento/${cursoSeleccionado}`, {
         cursoSeleccionado,
         descripcion,
         fecha: fechaObj,
-      }, { withCredentials: true });
+      });
 
       setRespuesta('Evento creado exitosamente.');
       setDescripcion('');
