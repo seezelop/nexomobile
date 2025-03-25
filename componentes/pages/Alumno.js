@@ -14,6 +14,10 @@ function Alumno({ navigation }) {
     navigation.navigate('CantInasistenciasAlumno');
   };
 
+  const redirigirChat = () => {
+    navigation.navigate('Chats');
+  };
+
   return (
     <View style={styles.container}>
       <Text style={styles.title}>Bienvenido Alumno</Text>
@@ -26,6 +30,9 @@ function Alumno({ navigation }) {
       </View>
       <View style={styles.buttonContainer}>
         <Button title="Cantidad de Faltas" onPress={irAInasistencias} />
+      </View>
+      <View style={styles.buttonContainer}>
+        <Button title="Enviar Mensaje Privado" onPress={redirigirChat} />
       </View>
     </View>
   );
