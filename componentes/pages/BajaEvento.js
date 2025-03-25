@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import { View, Text, TextInput, Button, Alert, Picker, ActivityIndicator, StyleSheet, FlatList, TouchableOpacity } from 'react-native';
+import { View, Text, TextInput, Button, Alert, ActivityIndicator, StyleSheet, FlatList, TouchableOpacity } from 'react-native';
+import { Picker } from '@react-native-picker/picker';
 
 function BajaEvento() {
   const [cursos, setCursos] = useState([]);

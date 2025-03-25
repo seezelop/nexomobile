@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, TextInput, Button, Picker, Alert } from 'react-native';
+import { View, Text, TextInput, Button, Alert } from 'react-native';
 import axios from 'axios';
+import { Picker } from '@react-native-picker/picker';
 
 function ModificarEvento() {
   const [descripcion, setDescripcion] = useState('');

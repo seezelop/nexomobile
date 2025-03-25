@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { View, Text, TextInput, Button, Alert, StyleSheet } from 'react-native';
- import DateTimePicker from '@react-native-community/datetimepicker';    //ESTA DEPENDENCIA ES NECESARIA PERO ESTA TRAYENDO PROBLEMAS SU UTILIZACION
+ import DateTimePicker from '@react-native-community/datetimepicker';   
 import { API_BASE_URL } from '../url';
 import { Picker } from '@react-native-picker/picker';
 function AltaEvento() {
