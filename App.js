@@ -10,7 +10,7 @@ import JefeColegio from './componentes/pages/JefeColegio';
 import GestionarAsistenciaAlumnos from './componentes/pages/GestionarAsistenciaAlumnos';
 import GestionarAsistenciaProfesor from './componentes/pages/GestionarAsistenciaProfesor';
 import ABMEvento from './componentes/pages/ABMEvento';
-import AltaComunicacion from './componentes/pages/AltaComunicacion';
+import AltaComunicacion from './componentes/ABM/AltaComunicacion';
 import AltaEvento from './componentes/pages/AltaEvento';
 import BajaEvento from './componentes/pages/BajaEvento';
 import InformacionCurso from './componentes/pages/InformacionCurso';

@@ -64,8 +64,9 @@ export default function Login({ navigation }) {
             case 'preceptor':
               navigation.navigate('Preceptor');
               break;
-          default:
-            Alert.alert('Error', 'Rol no reconocido'+userRole.toLowerCase());
+            case 'profesor':
+              navigation.navigate('Profesor')
+          
         }
       }
     } catch (error) {

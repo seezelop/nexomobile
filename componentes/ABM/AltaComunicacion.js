@@ -1,6 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, TextInput, Button, Picker, Alert, StyleSheet, ScrollView } from 'react-native';
+import { View, Text, TextInput, Button, Alert, StyleSheet, ScrollView } from 'react-native';
+import { Picker } from '@react-native-picker/picker';
 import axios from 'axios';
+import { API_BASE_URL } from '../url';
+ 
 
 function AltaComunicacion() {
   const [mensaje, setMensaje] = useState('');
@@ -8,11 +11,18 @@ function AltaComunicacion() {
   const [cursoSeleccionado, setCursoSeleccionado] = useState('');
   const [respuesta, setRespuesta] = useState('');
 
+  const axiosInstance = axios.create({
+    baseURL: API_BASE_URL,
+    withCredentials: true,
+    headers: {
+      'Content-Type': 'application/json',
+    }
+  });
   // Cargar cursos desde el backend
   useEffect(() => {
     const cargarCursos = async () => {
       try {
-        const response = await axios.get("http://localhost:8080/api/usuario/verCursoProfesor", {
+        const response = await axiosInstance.get('/api/usuario/verCursoProfesor', {
           withCredentials: true,
         });
         setCursos(response.data);
@@ -32,7 +42,7 @@ function AltaComunicacion() {
     }
 
     try {
-      await axios.post(`http://localhost:8080/novedades/${cursoSeleccionado}`, { contenido: mensaje }, { withCredentials: true });
+      await axiosInstance.post(`/novedades/${cursoSeleccionado}`, { contenido: mensaje }, { withCredentials: true });
       setRespuesta('Mensaje enviado exitosamente.');
       setMensaje('');
       setCursoSeleccionado('');
