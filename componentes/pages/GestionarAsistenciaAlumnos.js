@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, FlatList, ActivityIndicator, StyleSheet } from 'react-native';
+import { View, Text, FlatList, ActivityIndicator, StyleSheet, ScrollView } from 'react-native';
 import { Checkbox, Button, Provider as PaperProvider } from 'react-native-paper';
 import { Picker } from '@react-native-picker/picker';
 import axios from 'axios';
 import { API_BASE_URL } from '../url';
+styles
 
 const GestionarAsistenciaAlumnos = () => {
   const [cursos, setCursos] = useState([]);
@@ -16,10 +17,7 @@ const GestionarAsistenciaAlumnos = () => {
   const [idAsistenciaSeleccionada, setIdAsistenciaSeleccionada] = useState('');
   const [loading, setLoading] = useState(false);
   const [mensaje, setMensaje] = useState({ text: '', type: '' });
-
-  useEffect(() => {
-    fetchCursos();
-  }, []);
+  const [modoModificacion, setModoModificacion] = useState(false);
 
   const axiosInstance = axios.create({
     baseURL: API_BASE_URL,
@@ -29,9 +27,13 @@ const GestionarAsistenciaAlumnos = () => {
     }
   });
 
+  useEffect(() => {
+    fetchCursos();
+  }, []);
+
   const fetchCursos = async () => {
     try {
-      const response = await axiosInstance.get('api/usuario/verCursoPreceptor');
+      const response = await axiosInstance.get('/api/usuario/verCursoPreceptor');
       setCursos(response.data);
     } catch (error) {
       console.error('Error al obtener cursos:', error);
@@ -44,7 +46,7 @@ const GestionarAsistenciaAlumnos = () => {
 
     setLoading(true);
     try {
-      const response = await axiosInstance.get(`api/usuario/verAlumnosCurso/${cursoId}`);
+      const response = await axiosInstance.get(`/api/usuario/verAlumnosCurso/${cursoId}`);
       const alumnosData = response.data;
 
       const asistenciaInicial = alumnosData.map(alumno => ({
@@ -67,7 +69,7 @@ const GestionarAsistenciaAlumnos = () => {
     if (!cursoId) return;
 
     try {
-      const response = await axiosInstance.get(`api/usuario/obtenerAsistencias/${cursoId}`);
+      const response = await axiosInstance.get(`/api/usuario/obtenerAsistencias/${cursoId}`);
       setFechasAsistencias(response.data);
     } catch (error) {
       console.error('Error al obtener fechas de asistencias:', error);
@@ -75,13 +77,18 @@ const GestionarAsistenciaAlumnos = () => {
     }
   };
 
+
   const handleCursoChange = (itemValue) => {
     setCursoSeleccionado(itemValue);
     if (itemValue) {
       fetchAlumnos(itemValue);
+      if (modoModificacion) {
+        fetchFechasAsistencias(itemValue);
+      }
     } else {
       setAlumnos([]);
       setAsistencia([]);
+      setFechasAsistencias([]);
     }
   };
 
@@ -89,19 +96,39 @@ const GestionarAsistenciaAlumnos = () => {
     setAlumnoSeleccionado(itemValue);
   };
 
-  const handleFechaChange = (itemValue) => {
-    setIdAsistenciaSeleccionada(itemValue);
-    const asistenciaSeleccionada = fechasAsistencias.find(a => a.idAsistencia === parseInt(itemValue));
-    if (asistenciaSeleccionada) {
-      setFechaSeleccionada(asistenciaSeleccionada.fecha);
-    } else {
-      setFechaSeleccionada('');
+  const fetchAsistenciasPorFecha = async (cursoId) => {
+    if (!cursoId) return;
+
+    setLoading(true);
+    console.log('PARAMETROS: ', { cursoId });
+    try {
+      const response = await axiosInstance.get(
+        `/api/usuario/obtenerAsistencias/${cursoId}`
+      );
+
+      const asistenciasData = response.data;
+      const asistenciaActualizada = alumnos.map(alumno => {
+        const asistenciaAlumno = asistenciasData.find(a => a.idUsuario === alumno.id_usuario);
+        return {
+          idUsuario: alumno.id_usuario,
+          asistio: asistenciaAlumno ? asistenciaAlumno.asistio : 0,
+          mediaFalta: asistenciaAlumno ? asistenciaAlumno.mediaFalta : 0,
+          retiroAntes: asistenciaAlumno ? asistenciaAlumno.retiroAntes : 0,
+        };
+      });
+
+      setAsistencia(asistenciaActualizada);
+    } catch (error) {
+      console.error('Error al obtener asistencias por fecha:', error);
+      setMensaje({ text: 'Hubo un error al cargar las asistencias.', type: 'danger' });
+    } finally {
+      setLoading(false);
     }
   };
 
   const handleAsistenciaChange = (index, field) => {
     const updatedAsistencia = [...asistencia];
-    
+
     // Reset all values first
     updatedAsistencia[index] = {
       ...updatedAsistencia[index],
@@ -109,10 +136,10 @@ const GestionarAsistenciaAlumnos = () => {
       mediaFalta: 0,
       retiroAntes: 0,
     };
-    
+
     // Then set the selected field to 1
     updatedAsistencia[index][field] = 1;
-    
+
     setAsistencia(updatedAsistencia);
   };
 
@@ -133,11 +160,9 @@ const GestionarAsistenciaAlumnos = () => {
         alumnosCurso: asistencia,
       };
 
-      console.log("LO QUE SE VA A ENVIAR: "+JSON.stringify(dataToSend))
       const response = await axiosInstance.post(
-        `api/usuario/tomarAsistencia/${cursoSeleccionado}`,
-        dataToSend,
-        { withCredentials: true }
+        `/api/usuario/tomarAsistencia/${cursoSeleccionado}`,
+        dataToSend
       );
 
       if (response.status === 201) {
@@ -154,10 +179,84 @@ const GestionarAsistenciaAlumnos = () => {
     }
   };
 
+  const handleFechaChange = (itemValue) => {
+    setIdAsistenciaSeleccionada(itemValue);
+    const asistenciaSeleccionada = fechasAsistencias.find(a => a.idAsistencia === parseInt(itemValue));
+    if (asistenciaSeleccionada) {
+      setFechaSeleccionada(asistenciaSeleccionada.fecha);
+      fetchAsistenciasPorFecha(cursoSeleccionado, asistenciaSeleccionada.fecha);
+    } else {
+      setFechaSeleccionada('');
+    }
+  };
+
+  const handleEditarAsistencia = async () => {
+    if (!cursoSeleccionado || !fechaSeleccionada || !alumnoSeleccionado) {
+      setMensaje({ text: 'Debe seleccionar un curso, fecha y alumno.', type: 'warning' });
+      return;
+    }
+
+    setLoading(true);
+    try {
+      // Encontrar el índice del alumno seleccionado
+      const alumnoIndex = alumnos.findIndex(alumno => alumno.id_usuario === parseInt(alumnoSeleccionado));
+
+      if (alumnoIndex === -1) {
+        setMensaje({ text: 'Alumno no encontrado.', type: 'danger' });
+        setLoading(false);
+        return;
+      }
+
+      // Preparar los datos de asistencia para el alumno seleccionado
+      const asistenciaAlumno = [asistencia[alumnoIndex]];
+
+      const response = await axiosInstance.patch(
+        `/api/usuario/editarAsistencia/${cursoSeleccionado}?fecha=${fechaSeleccionada}`,
+        asistenciaAlumno
+      );
+
+      if (response.status === 200) {
+        setMensaje({ text: 'Asistencia editada correctamente.', type: 'success' });
+      }
+    } catch (error) {
+      console.error('Error al editar asistencia:', error);
+      setMensaje({
+        text: `Error al editar la asistencia: ${error.response?.data || error.message}`,
+        type: 'danger',
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const toggleModoModificacion = () => {
+    const nuevoModo = !modoModificacion;
+    setModoModificacion(nuevoModo);
+
+    // Resetear estados
+    setCursoSeleccionado('');
+    setAlumnos([]);
+    setAsistencia([]);
+    setFechasAsistencias([]);
+    setAlumnoSeleccionado('');
+    setFechaSeleccionada('');
+    setIdAsistenciaSeleccionada('');
+  };
+
   return (
     <PaperProvider>
-      <View style={styles.container}>
-        <Text style={styles.titulo}>Tomar Asistencia</Text>
+      <ScrollView style={styles.container}>
+        <Button
+          mode="outlined"
+          onPress={toggleModoModificacion}
+          style={styles.modoBoton}
+        >
+          {modoModificacion ? 'Tomar Asistencia' : 'Modificar Asistencia'}
+        </Button>
+
+        <Text style={styles.titulo}>
+          {modoModificacion ? 'Modificar Asistencia' : 'Tomar Asistencia'}
+        </Text>
 
         {mensaje.text && (
           <Text style={mensaje.type === 'danger' ? styles.error : styles.success}>
@@ -183,66 +282,162 @@ const GestionarAsistenciaAlumnos = () => {
           </Picker>
         </View>
 
-        {alumnos.length > 0 ? (
+        {modoModificacion && (
           <>
-            <Text style={styles.subtitulo}>Lista de Alumnos</Text>
-            <FlatList
-              data={alumnos}
-              keyExtractor={(item) => item.id_usuario.toString()}
-              renderItem={({ item, index }) => (
-                <View style={styles.alumnoContainer}>
-                  <Text style={styles.nombreAlumno}>
-                    {item.nombre} {item.apellido}
-                  </Text>
+            <View style={styles.pickerContainer}>
+              <Text>Seleccionar Fecha</Text>
+              <Picker
+                selectedValue={idAsistenciaSeleccionada}
+                onValueChange={handleFechaChange}
+                style={styles.picker}
+                enabled={!!cursoSeleccionado}
+              >
+                <Picker.Item label="Seleccione una fecha" value="" />
+                {fechasAsistencias.map((asistencia) => (
+                  <Picker.Item
+                    key={asistencia.idAsistencia}
+                    label={asistencia.fecha}
+                    value={asistencia.idAsistencia}
+                  />
+                ))}
+              </Picker>
+            </View>
 
-                  <View style={styles.checkboxGroup}>
-                    {/* Checkbox Presente */}
-                    <View style={styles.checkboxContainer}>
-                      <Checkbox
-                        status={asistencia[index]?.asistio === 1 ? 'checked' : 'unchecked'}
-                        onPress={() => handleAsistenciaChange(index, 'asistio')}
-                        color="#6200ee"
-                      />
-                      <Text style={styles.checkboxLabel}>Presente</Text>
-                    </View>
+            <View style={styles.pickerContainer}>
+              <Text>Seleccionar Alumno</Text>
+              <Picker
+                selectedValue={alumnoSeleccionado}
+                onValueChange={handleAlumnoChange}
+                style={styles.picker}
+                enabled={!!cursoSeleccionado && !!idAsistenciaSeleccionada}
+              >
+                <Picker.Item label="Seleccione un alumno" value="" />
+                {alumnos.map((alumno) => (
+                  <Picker.Item
+                    key={alumno.id_usuario}
+                    label={`${alumno.nombre} ${alumno.apellido}`}
+                    value={alumno.id_usuario}
+                  />
+                ))}
+              </Picker>
+            </View>
+          </>
+        )}
 
-                    {/* Checkbox Media Falta */}
-                    <View style={styles.checkboxContainer}>
-                      <Checkbox
-                        status={asistencia[index]?.mediaFalta === 1 ? 'checked' : 'unchecked'}
-                        onPress={() => handleAsistenciaChange(index, 'mediaFalta')}
-                        color="#6200ee"
-                      />
-                      <Text style={styles.checkboxLabel}>Media Falta</Text>
-                    </View>
+        {((!modoModificacion && alumnos.length > 0) ||
+          (modoModificacion && alumnoSeleccionado)) ? (
+          <>
+            <Text style={styles.subtitulo}>
+              {modoModificacion ? 'Modificar Asistencia del Alumno' : 'Lista de Alumnos'}
+            </Text>
 
-                    {/* Checkbox Retiro */}
-                    <View style={styles.checkboxContainer}>
-                      <Checkbox
-                        status={asistencia[index]?.retiroAntes === 1 ? 'checked' : 'unchecked'}
-                        onPress={() => handleAsistenciaChange(index, 'retiroAntes')}
-                        color="#6200ee"
-                      />
-                      <Text style={styles.checkboxLabel}>Retiro</Text>
+            {!modoModificacion ? (
+              <FlatList
+                data={alumnos}
+                keyExtractor={(item) => item.id_usuario.toString()}
+                renderItem={({ item, index }) => (
+                  <View style={styles.alumnoContainer}>
+                    <Text style={styles.nombreAlumno}>
+                      {item.nombre} {item.apellido}
+                    </Text>
+
+                    <View style={styles.checkboxGroup}>
+                      {/* Checkboxes para Tomar Asistencia */}
+                      <View style={styles.checkboxContainer}>
+                        <Checkbox
+                          status={asistencia[index]?.asistio === 1 ? 'checked' : 'unchecked'}
+                          onPress={() => handleAsistenciaChange(index, 'asistio')}
+                          color="#6200ee"
+                        />
+                        <Text style={styles.checkboxLabel}>Presente</Text>
+                      </View>
+
+                      <View style={styles.checkboxContainer}>
+                        <Checkbox
+                          status={asistencia[index]?.mediaFalta === 1 ? 'checked' : 'unchecked'}
+                          onPress={() => handleAsistenciaChange(index, 'mediaFalta')}
+                          color="#6200ee"
+                        />
+                        <Text style={styles.checkboxLabel}>Media Falta</Text>
+                      </View>
+
+                      <View style={styles.checkboxContainer}>
+                        <Checkbox
+                          status={asistencia[index]?.retiroAntes === 1 ? 'checked' : 'unchecked'}
+                          onPress={() => handleAsistenciaChange(index, 'retiroAntes')}
+                          color="#6200ee"
+                        />
+                        <Text style={styles.checkboxLabel}>Retiro</Text>
+                      </View>
                     </View>
                   </View>
+                )}
+              />
+            ) : (
+              // Modificación de Asistencia para un alumno específico
+              <View style={styles.alumnoContainer}>
+                <Text style={styles.nombreAlumno}>
+                  {alumnos.find(a => a.id_usuario === parseInt(alumnoSeleccionado))?.nombre}{' '}
+                  {alumnos.find(a => a.id_usuario === parseInt(alumnoSeleccionado))?.apellido}
+                </Text>
+
+                <View style={styles.checkboxGroup}>
+                  <View style={styles.checkboxContainer}>
+                    <Checkbox
+                      status={asistencia.find(a => a.idUsuario === parseInt(alumnoSeleccionado))?.asistio === 1 ? 'checked' : 'unchecked'}
+                      onPress={() => {
+                        const index = alumnos.findIndex(a => a.id_usuario === parseInt(alumnoSeleccionado));
+                        handleAsistenciaChange(index, 'asistio');
+                      }}
+                      color="#6200ee"
+                    />
+                    <Text style={styles.checkboxLabel}>Presente</Text>
+                  </View>
+
+                  <View style={styles.checkboxContainer}>
+                    <Checkbox
+                      status={asistencia.find(a => a.idUsuario === parseInt(alumnoSeleccionado))?.mediaFalta === 1 ? 'checked' : 'unchecked'}
+                      onPress={() => {
+                        const index = alumnos.findIndex(a => a.id_usuario === parseInt(alumnoSeleccionado));
+                        handleAsistenciaChange(index, 'mediaFalta');
+                      }}
+                      color="#6200ee"
+                    />
+                    <Text style={styles.checkboxLabel}>Media Falta</Text>
+                  </View>
+
+                  <View style={styles.checkboxContainer}>
+                    <Checkbox
+                      status={asistencia.find(a => a.idUsuario === parseInt(alumnoSeleccionado))?.retiroAntes === 1 ? 'checked' : 'unchecked'}
+                      onPress={() => {
+                        const index = alumnos.findIndex(a => a.id_usuario === parseInt(alumnoSeleccionado));
+                        handleAsistenciaChange(index, 'retiroAntes');
+                      }}
+                      color="#6200ee"
+                    />
+                    <Text style={styles.checkboxLabel}>Retiro</Text>
+                  </View>
                 </View>
-              )}
-            />
-            
-            <Button 
-              mode="contained" 
-              onPress={handleSubmit}
+              </View>
+            )}
+
+            <Button
+              mode="contained"
+              onPress={modoModificacion ? handleEditarAsistencia : handleSubmit}
               style={styles.boton}
               loading={loading}
+              disabled={
+                (modoModificacion && (!alumnoSeleccionado || !fechaSeleccionada)) ||
+                (!modoModificacion && !cursoSeleccionado)
+              }
             >
-              Registrar Asistencia
+              {modoModificacion ? 'Editar Asistencia' : 'Registrar Asistencia'}
             </Button>
           </>
         ) : loading ? (
           <ActivityIndicator size="large" color="#6200ee" />
         ) : null}
-      </View>
+      </ScrollView>
     </PaperProvider>
   );
 };
@@ -298,6 +493,9 @@ const styles = StyleSheet.create({
   boton: {
     marginTop: 20,
     backgroundColor: '#6200ee',
+  },
+  modoBoton: {
+    marginBottom: 15,
   },
   error: {
     color: 'red',
