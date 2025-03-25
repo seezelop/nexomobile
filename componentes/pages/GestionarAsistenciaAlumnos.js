@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, FlatList, ActivityIndicator, StyleSheet, ScrollView } from 'react-native';
+import { View, Text, FlatList, ActivityIndicator, StyleSheet, ScrollView, Dimensions } from 'react-native';
 import { Checkbox, Button, Provider as PaperProvider } from 'react-native-paper';
 import { Picker } from '@react-native-picker/picker';
 import axios from 'axios';
@@ -245,7 +245,7 @@ const GestionarAsistenciaAlumnos = () => {
 
   return (
     <PaperProvider>
-      <ScrollView style={styles.container}>
+      <View style={styles.container}>
         <Button
           mode="outlined"
           onPress={toggleModoModificacion}
@@ -342,7 +342,6 @@ const GestionarAsistenciaAlumnos = () => {
                     </Text>
 
                     <View style={styles.checkboxGroup}>
-                      {/* Checkboxes para Tomar Asistencia */}
                       <View style={styles.checkboxContainer}>
                         <Checkbox
                           status={asistencia[index]?.asistio === 1 ? 'checked' : 'unchecked'}
@@ -437,74 +436,73 @@ const GestionarAsistenciaAlumnos = () => {
         ) : loading ? (
           <ActivityIndicator size="large" color="#6200ee" />
         ) : null}
-      </ScrollView>
+      </View>
     </PaperProvider>
   );
 };
-
-const styles = StyleSheet.create({
-  container: {
-    padding: 20,
-    backgroundColor: '#fff',
-  },
-  titulo: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    marginBottom: 20,
-    color: '#6200ee',
-  },
-  subtitulo: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    marginVertical: 15,
-  },
-  pickerContainer: {
-    marginVertical: 15,
-  },
-  picker: {
-    height: 50,
-    width: '100%',
-  },
-  alumnoContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingVertical: 12,
-    borderBottomWidth: 1,
-    borderBottomColor: '#eee',
-  },
-  nombreAlumno: {
-    flex: 2,
-    fontSize: 14,
-  },
-  checkboxGroup: {
-    flex: 3,
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-  },
-  checkboxContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  checkboxLabel: {
-    marginLeft: 8,
-    fontSize: 12,
-  },
-  boton: {
-    marginTop: 20,
-    backgroundColor: '#6200ee',
-  },
-  modoBoton: {
-    marginBottom: 15,
-  },
-  error: {
-    color: 'red',
-    marginVertical: 10,
-  },
-  success: {
-    color: 'green',
-    marginVertical: 10,
-  },
-});
-
-export default GestionarAsistenciaAlumnos;
+  const styles = StyleSheet.create({
+    container: {
+      padding: 20,
+      backgroundColor: '#fff',
+    },
+    titulo: {
+      fontSize: 24,
+      fontWeight: 'bold',
+      marginBottom: 20,
+      color: '#6200ee',
+    },
+    subtitulo: {
+      fontSize: 18,
+      fontWeight: 'bold',
+      marginVertical: 15,
+    },
+    pickerContainer: {
+      marginVertical: 15,
+    },
+    picker: {
+      height: 50,
+      width: '100%',
+    },
+    alumnoContainer: {
+      flexDirection: 'column', // Change to column layout
+      paddingVertical: 12,
+      borderBottomWidth: 1,
+      borderBottomColor: '#eee',
+    },
+    nombreAlumno: {
+      fontSize: 14,
+      marginBottom: 10, // Add some space between name and checkboxes
+    },
+    checkboxGroup: {
+      flexDirection: 'row', // Keep horizontal
+      flexWrap: 'wrap', // Allow wrapping
+      justifyContent: 'space-between',
+      width: '100%', // Full width
+    },
+    checkboxContainer: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      width: Dimensions.get('screen') * 0.25, // Adjust width to ensure 3 checkboxes fit
+      marginBottom: 5, // Add some vertical spacing
+    },
+    checkboxLabel: {
+      marginLeft: 8,
+      fontSize: 12,
+    },
+    boton: {
+      marginTop: 20,
+      backgroundColor: '#6200ee',
+    },
+    modoBoton: {
+      marginBottom: 15,
+    },
+    error: {
+      color: 'red',
+      marginVertical: 10,
+    },
+    success: {
+      color: 'green',
+      marginVertical: 10,
+    }
+  });
+  export default GestionarAsistenciaAlumnos;
