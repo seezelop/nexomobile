@@ -133,8 +133,9 @@ const GestionarAsistenciaAlumnos = () => {
         alumnosCurso: asistencia,
       };
 
-      const response = await axios.post(
-        `http://localhost:8080/api/usuario/tomarAsistencia/${cursoSeleccionado}`,
+      console.log("LO QUE SE VA A ENVIAR: "+JSON.stringify(dataToSend))
+      const response = await axiosInstance.post(
+        `api/usuario/tomarAsistencia/${cursoSeleccionado}`,
         dataToSend,
         { withCredentials: true }
       );
