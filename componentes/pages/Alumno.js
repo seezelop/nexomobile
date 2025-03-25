@@ -3,7 +3,7 @@ import { View, Text, Button, StyleSheet } from 'react-native';
 
 function Alumno({ navigation }) {
   const irANovedades = () => {
-    navigation.navigate('Novedades');
+    navigation.navigate('VerNovedades');
   };
 
   const irAInformacionCurso = () => {

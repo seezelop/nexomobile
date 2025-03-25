@@ -2,16 +2,25 @@ import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { View, Text, ActivityIndicator, ScrollView, Alert } from "react-native";
 import { Card } from "react-native-paper";
+import { API_BASE_URL } from '../url';
 
 function VerNovedades() {
   const [novedades, setNovedades] = useState([]);
   const [cargando, setCargando] = useState(true);
   const [error, setError] = useState("");
 
+  const axiosInstance = axios.create({
+    baseURL: API_BASE_URL,
+    withCredentials: true,
+    headers: {
+      'Content-Type': 'application/json',
+    }
+  });
+
   useEffect(() => {
     const cargarNovedades = async () => {
       try {
-        const response = await axios.get("http://localhost:8080/verNovedades", {
+        const response = await axiosInstance.get('/verNovedades', {
           withCredentials: true,
         });
 
@@ -21,7 +30,7 @@ function VerNovedades() {
           setNovedades(response.data);
         }
       } catch (err) {
-        console.error(err); // Esto te ayudará a ver detalles del error
+        console.error(err);
         setError("Error al cargar las novedades.");
       } finally {
         setCargando(false);
