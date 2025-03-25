@@ -6,11 +6,15 @@ function Preceptor() {
   const navigation = useNavigation();  // Hook para redirigir a otra pantalla
 
   const redirigirAlumno = () => {
-    navigation.navigate('GestionarAsistenciaAlumnos');  // Redirige a la pantalla de seleccionar curso
+    navigation.navigate('GestionarAsistenciaAlumnos');
   };
 
   const redirigirProfesor = () => {
-    navigation.navigate('GestionarAsistenciaProfesor');  // Redirige a la pantalla de seleccionar curso
+    navigation.navigate('GestionarAsistenciaProfesor');
+  };
+
+  const redirigirChat = () => {
+    navigation.navigate('Chats');
   };
 
   return (
@@ -26,6 +30,12 @@ function Preceptor() {
       <Button
         title="Gestionar Asistencia de Profesores"
         onPress={redirigirProfesor}
+        color="#007bff"
+      />
+
+      <Button
+        title="Chats"
+        onPress={redirigirChat}
         color="#007bff"
       />
     </View>
