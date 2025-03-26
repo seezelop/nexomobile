@@ -18,9 +18,16 @@ function Profesor() {
 
       <TouchableOpacity 
         style={styles.button} 
-        onPress={() => navigation.navigate('ABMEvento')}
+        onPress={() => navigation.navigate('AltaEvento')}
       >
-        <Text style={styles.buttonText}>ABM Eventos</Text>
+        <Text style={styles.buttonText}>Alta Eventos</Text>
+      </TouchableOpacity>
+
+      <TouchableOpacity 
+        style={styles.button} 
+        onPress={() => navigation.navigate('BajaEvento')}
+      >
+        <Text style={styles.buttonText}>Baja Eventos</Text>
       </TouchableOpacity>
     </View>
   );

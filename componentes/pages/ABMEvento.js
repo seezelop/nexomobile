@@ -11,13 +11,13 @@ function ABMEvento() {
     <ScrollView contentContainerStyle={styles.container}>
       <View style={styles.card}>
         {/* Alta de Evento */}
-        <View style={styles.cardSection}>
+        {/*<View style={styles.cardSection}>
           <Text style={styles.cardTitle}>ALTA EVENTO</Text>
           <AltaEvento />
-        </View>
+        </View>*/}
 
         {/* Baja de Evento */}
-        {/*<View style={styles.cardSection}>
+        <View style={styles.cardSection}>
           <Text style={styles.cardTitle}>BAJA EVENTO</Text>
           <BajaEvento />
         </View>

@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import { View, Text, TextInput, Button, Alert, ActivityIndicator, StyleSheet, FlatList, TouchableOpacity } from 'react-native';
+import { View, Text, Button, Alert, ActivityIndicator, StyleSheet, FlatList, TouchableOpacity } from 'react-native';
 import { Picker } from '@react-native-picker/picker';
+import { API_BASE_URL } from "../url";
 
 function BajaEvento() {
   const [cursos, setCursos] = useState([]);
@@ -12,12 +13,10 @@ function BajaEvento() {
   const [mensaje, setMensaje] = useState('');
   const [tipoMensaje, setTipoMensaje] = useState('');
 
-  // Cargar cursos al montar el componente
   useEffect(() => {
     cargarCursos();
   }, []);
 
-  // Cargar eventos cuando se selecciona un curso
   useEffect(() => {
     if (cursoSeleccionado) {
       cargarEventos(cursoSeleccionado);
@@ -27,13 +26,12 @@ function BajaEvento() {
     }
   }, [cursoSeleccionado]);
 
-  // Función para cargar los cursos del profesor
   const cargarCursos = async () => {
     setCargando(true);
     setMensaje('');
 
     try {
-      const response = await axios.get('http://localhost:8080/api/usuario/verCursoProfesor', {
+      const response = await axios.get(`${API_BASE_URL}/api/usuario/verCursoProfesor`, {
         withCredentials: true
       });
       setCursos(response.data);
@@ -46,13 +44,12 @@ function BajaEvento() {
     }
   };
 
-  // Función para cargar los eventos de un curso
   const cargarEventos = async (idCurso) => {
     setCargando(true);
     setMensaje('');
 
     try {
-      const response = await axios.get(`http://localhost:8080/api/usuario/verEventos/${idCurso}`, {
+      const response = await axios.get(`${API_BASE_URL}/api/usuario/verEventos/${idCurso}`, {
         withCredentials: true
       });
       setEventos(response.data);
@@ -65,65 +62,67 @@ function BajaEvento() {
     }
   };
 
-  // Manejar eliminación de evento
-  const eliminarEvento = async () => {
+  const eliminarEvento = () => {
     if (!eventoSeleccionado) {
-      setMensaje('Por favor, seleccione un evento para eliminar.');
-      setTipoMensaje('warning');
+      Alert.alert('Error', 'Por favor, seleccione un evento para eliminar.');
       return;
     }
-
-    const eventoAEliminar = eventos.find(evento => evento.idEvento.toString() === eventoSeleccionado.toString());
-    const nombreEvento = eventoAEliminar ? eventoAEliminar.nombre || `ID: ${eventoSeleccionado}` : `ID: ${eventoSeleccionado}`;
-
-    const confirmar = window.confirm(`¿Está seguro que desea eliminar el evento? Esta acción no se puede deshacer.`);
-
-    if (confirmar) {
-      setCargando(true);
-      setMensaje('');
-
-      try {
-        await axios.delete(`http://localhost:8080/api/usuario/borrarEvento/${eventoSeleccionado}`, {
-          withCredentials: true
-        });
-
-        // Recargar eventos después de eliminar
-        await cargarEventos(cursoSeleccionado);
-
-        setEventoSeleccionado('');
-        setMensaje(`El evento ha sido eliminado con éxito.`);
-        setTipoMensaje('success');
-        setCargando(false);
-      } catch (error) {
-        console.error('Error al eliminar el evento:', error);
-
-        let mensajeError = 'Error al eliminar el evento. Por favor, intente nuevamente.';
-        if (error.response && error.response.data) {
-          mensajeError = `Error: ${error.response.data.mensaje || JSON.stringify(error.response.data)}`;
+  
+    Alert.alert(
+      'Confirmar Eliminación', 
+      '¿Está seguro que desea eliminar el evento? Esta acción no se puede deshacer.',
+      [
+        {
+          text: 'Cancelar',
+          style: 'cancel'
+        },
+        {
+          text: 'Eliminar',
+          style: 'destructive',
+          onPress: async () => {
+            try {
+              setCargando(true);
+              
+              const deleteUrl = `${API_BASE_URL}/api/usuario/borrarEvento/${eventoSeleccionado}`;
+              console.log('Delete URL:', deleteUrl);
+  
+              const response = await axios.delete(deleteUrl, {
+                withCredentials: true
+              });
+  
+              console.log('Delete response:', response.data);
+  
+              await cargarEventos(cursoSeleccionado);
+  
+              setEventoSeleccionado('');
+              Alert.alert('Éxito', 'El evento ha sido eliminado con éxito.');
+              setCargando(false);
+            } catch (error) {
+              console.error('Error al eliminar el evento:', error);
+              console.error('Error response:', error.response?.data);
+              console.error('Error status:', error.response?.status);
+  
+              let mensajeError = 'Error al eliminar el evento. Por favor, intente nuevamente.';
+              if (error.response && error.response.data) {
+                mensajeError = `Error: ${error.response.data.mensaje || JSON.stringify(error.response.data)}`;
+              }
+  
+              Alert.alert('Error', mensajeError);
+              setCargando(false);
+            }
+          }
         }
-
-        setMensaje(mensajeError);
-        setTipoMensaje('danger');
-        setCargando(false);
-      }
-    }
+      ]
+    );
   };
 
-  // Manejo del formulario
   const handleSubmit = () => {
     eliminarEvento();
   };
 
   return (
     <View style={styles.container}>
-      {mensaje && (
-        <Alert variant={tipoMensaje} onClose={() => setMensaje('')} dismissible>
-          {mensaje}
-        </Alert>
-      )}
-
       <View style={styles.form}>
-        {/* Selector de Curso */}
         <Text>Seleccionar Curso</Text>
         <Picker
           selectedValue={cursoSeleccionado}
@@ -136,7 +135,6 @@ function BajaEvento() {
           ))}
         </Picker>
 
-        {/* Lista de Eventos */}
         {cursoSeleccionado && (
           <View style={styles.eventosContainer}>
             <Text>Seleccionar Evento</Text>
@@ -166,7 +164,6 @@ function BajaEvento() {
           </View>
         )}
 
-        {/* Botón de eliminar */}
         <Button
           title={cargando ? 'Procesando...' : 'Eliminar Evento'}
           onPress={handleSubmit}
@@ -177,7 +174,7 @@ function BajaEvento() {
       {cargando && <ActivityIndicator size="large" color="#0000ff" />}
     </View>
   );
-}
+};
 
 const styles = StyleSheet.create({
   container: {
@@ -209,6 +206,6 @@ const styles = StyleSheet.create({
     fontSize: 12,
     color: 'gray',
   },
-});
+})
 
 export default BajaEvento;
