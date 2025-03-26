@@ -18,12 +18,15 @@ function Padre({ navigation }) {
   const [estadoPago, setEstadoPago] = useState('');
   const [precio, setPrecio] = useState(null);
   const [cargando, setCargando] = useState(true);
-  
+
   const redirigirAlumno = () => {
     navigation.navigate('CantInasistencias');
   };
   const redirigirCurso = () => {
     navigation.navigate('InformacionCurso');
+  };
+  const redirigirChat = () => {
+    navigation.navigate('Chats');
   };
 
   useEffect(() => {
@@ -35,7 +38,7 @@ function Padre({ navigation }) {
     } else {
       setCargando(false);
     }
-  }, [route.params]); 
+  }, [route.params]);
 
   // Obtiene el precio antes de generar el comprobante
   const obtenerPrecioYGenerarComprobante = async () => {
@@ -81,6 +84,9 @@ function Padre({ navigation }) {
       </View>
       <View style={styles.buttonContainer}>
         <Button title="Informacion del Curso" onPress={redirigirCurso} />
+      </View>
+      <View style={styles.buttonContainer}>
+        <Button title="Chats" onPress={redirigirChat} />
       </View>
 
 
