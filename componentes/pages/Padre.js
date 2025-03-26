@@ -22,6 +22,9 @@ function Padre({ navigation }) {
   const redirigirAlumno = () => {
     navigation.navigate('CantInasistencias');
   };
+  const redirigirCurso = () => {
+    navigation.navigate('InformacionCurso');
+  };
 
   useEffect(() => {
     const status = route.params?.status; // Obtener el parámetro de la ruta
@@ -74,8 +77,12 @@ function Padre({ navigation }) {
         Consulta el progreso académico y la asistencia de tus hijos en esta sección.
       </Text>
       <View style={styles.buttonContainer}>
-              <Button title="Cantidad de Inasistencias" onPress={redirigirAlumno} />
-            </View>
+        <Button title="Cantidad de Inasistencias" onPress={redirigirAlumno} />
+      </View>
+      <View style={styles.buttonContainer}>
+        <Button title="Informacion del Curso" onPress={redirigirCurso} />
+      </View>
+
 
       {cargando ? (
         <ActivityIndicator size="large" color="#007bff" style={styles.loader} />
