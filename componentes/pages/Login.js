@@ -66,10 +66,13 @@ export default function Login({ navigation }) {
               break;
             case 'alumno':
               navigation.navigate('Alumno')
+              break;
             case 'profesor':
               navigation.navigate('Profesor')
+              break;
             case 'padre':
               navigation.navigate('Padre')
+              break;
           
         }
       }
