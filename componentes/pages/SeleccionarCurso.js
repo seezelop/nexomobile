@@ -1,6 +1,8 @@
 import React, { Component } from 'react';
-import { View, Text, Picker, TextInput, FlatList, StyleSheet, Button } from 'react-native';
+import { View, Text, TextInput, FlatList, StyleSheet, Button } from 'react-native';
 import axios from 'axios';
+import { API_BASE_URL } from '../url';
+import { Picker } from '@react-native-picker/picker';
 
 class SeleccionarCurso extends Component {
     constructor(props) {
@@ -15,13 +17,22 @@ class SeleccionarCurso extends Component {
             division: '',
             nombreP: '',
             apellidoP: '',
+            error: '',
         };
     }
+
+    axiosInstance = axios.create({
+        baseURL: API_BASE_URL,
+        withCredentials: true,
+        headers: {
+            'Content-Type': 'application/json',
+        },
+    });
 
     // Cargar la lista de cursos
     cargarCursos = async () => {
         try {
-            const response = await axios.get('http://localhost:8080/api/usuario/verCursos', {
+            const response = await this.axiosInstance.get('/api/usuario/verCursos', {
                 withCredentials: true,
             });
 
@@ -31,40 +42,41 @@ class SeleccionarCurso extends Component {
                 numero: curso.numero,
                 division: curso.division,
                 activo: curso.activo,
+                error: ''
             }));
 
             this.setState({ cursos });
         } catch (error) {
-            console.error('Error al cargar los cursos:', error);
+            const errorMessage = error.response?.data || 'Error desconocido al cargar la información';
+            this.setState({ error: errorMessage });
         }
     };
 
     // Obtener información adicional del curso
     obtenerInfo = async (idCurso) => {
         try {
-            const response = await axios.get(`http://localhost:8080/api/usuario/selectCurso/${idCurso}`, {
+            const response = await this.axiosInstance.get(`/api/usuario/selectCurso/${idCurso}`, {
                 withCredentials: true,
             });
-
+    
             const curso = response.data[0];
-
-            const alumnos = curso.alumnos;
-            const materias = curso.materias;
-
+    
             this.setState({
-                alumnos,
-                materias,
-                numero: curso.numero || '',
+                alumnos: curso.alumnos || [],
+                materias: curso.materias || [],
+                numero: curso.numero?.toString() || '',
                 division: curso.division || '',
                 nombreP: curso.nombreP || '',
                 apellidoP: curso.apellidoP || '',
+                error: '', // Limpiamos el error si todo salió bien
             });
-
-            console.info('INFO CURSO:', curso);
+    
         } catch (error) {
-            console.error('Error al cargar la información:', error.response?.data || error.message);
+            const errorMessage = error.response?.data || 'Error desconocido al cargar la información';
+            this.setState({ error: errorMessage }); // Guardamos el error en el estado
         }
     };
+    
 
     componentDidMount() {
         this.cargarCursos();
@@ -73,7 +85,7 @@ class SeleccionarCurso extends Component {
     // Manejar selección de curso
     handleDropdownChange = (itemValue) => {
         const selectedCurso = this.state.cursos.find(curso => curso.idCurso === itemValue);
-        
+
         this.setState({
             cursoSeleccionado: selectedCurso ? selectedCurso.nombre : 'Seleccione un curso',
             idCurso: itemValue,
@@ -114,6 +126,10 @@ class SeleccionarCurso extends Component {
 
                 {cursoSeleccionado !== 'Seleccione un curso' && (
                     <>
+                        {this.state.error ? (
+                            <Text style={styles.errorText}>{this.state.error}</Text>
+                        ) : null}
+
                         <TextInput
                             style={styles.input}
                             value={numero}
@@ -186,10 +202,15 @@ const styles = StyleSheet.create({
         marginBottom: 10,
         paddingLeft: 8,
     },
+    errorText: {
+        color: 'red',
+        fontSize: 16,
+        marginBottom: 10,
+    },
     sectionTitle: {
         fontSize: 18,
         fontWeight: 'bold',
-        marginTop: 20,
+        marginTop: 10,
     },
     listItem: {
         fontSize: 16,
