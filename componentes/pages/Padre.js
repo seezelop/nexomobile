@@ -1,13 +1,27 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, StyleSheet, ActivityIndicator } from 'react-native';
+import { View, Text, StyleSheet, ActivityIndicator, Button } from 'react-native';
 import { useRoute } from '@react-navigation/native';
 import axios from 'axios';
+import { API_BASE_URL } from '../url';
+import { useNavigation } from '@react-navigation/native';
 
-function Padre() {
+function Padre({ navigation }) {
+  const axiosInstance = axios.create({
+    baseURL: API_BASE_URL,
+    withCredentials: true,
+    headers: {
+      'Content-Type': 'application/json',
+    },
+  });
+
   const route = useRoute();
   const [estadoPago, setEstadoPago] = useState('');
   const [precio, setPrecio] = useState(null);
   const [cargando, setCargando] = useState(true);
+  
+  const redirigirAlumno = () => {
+    navigation.navigate('CantInasistencias');
+  };
 
   useEffect(() => {
     const status = route.params?.status; // Obtener el parámetro de la ruta
@@ -23,7 +37,7 @@ function Padre() {
   // Obtiene el precio antes de generar el comprobante
   const obtenerPrecioYGenerarComprobante = async () => {
     try {
-      const response = await axios.get("http://localhost:8080/api/usuario/obtenerInfoCuota", {
+      const response = await axiosInstance.get('/api/usuario/obtenerInfoCuota', {
         withCredentials: true,
       });
 
@@ -44,13 +58,9 @@ function Padre() {
 
   const generarComprobante = async (importe) => {
     try {
-      await axios.post(
-        "http://localhost:8080/api/usuario/generarComprobante",
-        { importe },
-        {
-          headers: { "Content-Type": "application/json" },
-          withCredentials: true,
-        }
+      await axiosInstance.post(
+        '/api/usuario/generarComprobante',
+        { importe }
       );
     } catch (error) {
       console.error("Error al generar el comprobante:", error);
@@ -63,6 +73,9 @@ function Padre() {
       <Text style={styles.subtitle}>
         Consulta el progreso académico y la asistencia de tus hijos en esta sección.
       </Text>
+      <View style={styles.buttonContainer}>
+              <Button title="Cantidad de Inasistencias" onPress={redirigirAlumno} />
+            </View>
 
       {cargando ? (
         <ActivityIndicator size="large" color="#007bff" style={styles.loader} />
@@ -101,6 +114,10 @@ const styles = StyleSheet.create({
   },
   loader: {
     marginTop: 20,
+  },
+  buttonContainer: {
+    width: '100%',
+    marginTop: 10,
   },
 });
 

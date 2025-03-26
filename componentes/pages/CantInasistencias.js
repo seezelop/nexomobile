@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { View, Text, StyleSheet, ActivityIndicator } from "react-native";
 import { Picker } from "@react-native-picker/picker";
 import axios from "axios";
+import { API_BASE_URL } from '../url';
 
 function CantInasistencias() {
   const [inasistencias, setInasistencias] = useState(null);
@@ -10,10 +11,19 @@ function CantInasistencias() {
   const [hijos, setHijos] = useState([]);
   const [hijoSeleccionado, setHijoSeleccionado] = useState("");
 
+
+  const axiosInstance = axios.create({
+      baseURL: API_BASE_URL,
+      withCredentials: true,
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
+
   useEffect(() => {
     const obtenerHijos = async () => {
       try {
-        const response = await axios.get("http://localhost:8080/api/usuario/verHijos", {
+        const response = await axiosInstance.get('/api/usuario/verHijos', {
           withCredentials: true,
         });
         setHijos(response.data);
@@ -32,8 +42,8 @@ function CantInasistencias() {
 
       setCargando(true);
       try {
-        const response = await axios.get(
-          `http://localhost:8080/api/usuario/cantInasistencias/${hijoSeleccionado}`,
+        const response = await axiosInstance.get(
+          `/api/usuario/cantInasistencias/${hijoSeleccionado}`,
           { withCredentials: true }
         );
         setInasistencias(response.data);

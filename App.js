@@ -24,6 +24,7 @@ import Alumno from './componentes/pages/Alumno';
 import CantInasistenciasAlumno from './componentes/pages/CantInasistenciasAlumno';
 import ChatIndividual from './componentes/pages/ChatIndividual';
 import Chats from './componentes/pages/Chats';
+import CantInasistencias from './componentes/pages/CantInasistencias';
 
 const Stack = createStackNavigator();
 
@@ -67,6 +68,7 @@ export default function App() {
           <Stack.Screen name="VerNovedades" component={VerNovedades} />
           <Stack.Screen name="ChatIndividual" component={ChatIndividual} />
           <Stack.Screen name="Chats" component={Chats} />
+          <Stack.Screen name="CantInasistencias" component={CantInasistencias} />
         </Stack.Navigator>
       </NavigationContainer>
     </UserProvider>

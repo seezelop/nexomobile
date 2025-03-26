@@ -3,7 +3,7 @@ import { View, Text, Button, StyleSheet } from "react-native";
 import { useNavigation } from '@react-navigation/native';
 
 function Preceptor({ navigation }) {
- // const navigation = useNavigation();
+  //const navigation = useNavigation();
 
   const redirigirAlumno = () => {
     navigation.navigate('GestionarAsistenciaAlumnos');

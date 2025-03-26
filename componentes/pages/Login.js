@@ -68,6 +68,8 @@ export default function Login({ navigation }) {
               navigation.navigate('Alumno')
             case 'profesor':
               navigation.navigate('Profesor')
+            case 'padre':
+              navigation.navigate('Padre')
           
         }
       }
