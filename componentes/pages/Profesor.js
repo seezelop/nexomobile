@@ -29,6 +29,13 @@ function Profesor() {
       >
         <Text style={styles.buttonText}>Baja Eventos</Text>
       </TouchableOpacity>
+
+      <TouchableOpacity 
+        style={styles.button} 
+        onPress={() => navigation.navigate('ModificarEvento')}
+      >
+        <Text style={styles.buttonText}>Modificar Eventos</Text>
+      </TouchableOpacity>
     </View>
   );
 }
