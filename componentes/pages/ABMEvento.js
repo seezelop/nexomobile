@@ -17,16 +17,16 @@ function ABMEvento() {
         </View>
 
         {/* Baja de Evento */}
-        <View style={styles.cardSection}>
+        {/*<View style={styles.cardSection}>
           <Text style={styles.cardTitle}>BAJA EVENTO</Text>
           <BajaEvento />
         </View>
 
         {/* Modificación de Evento */}
-        <View style={styles.cardSection}>
+        {/*<View style={styles.cardSection}>
           <Text style={styles.cardTitle}>MODIFICAR EVENTO</Text>
           <ModificarEvento />
-        </View>
+        </View>*/}
       </View>
     </ScrollView>
   );

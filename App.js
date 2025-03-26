@@ -26,6 +26,7 @@ import ChatIndividual from './componentes/pages/ChatIndividual';
 import Chats from './componentes/pages/Chats';
 import CantInasistencias from './componentes/pages/CantInasistencias';
 import SeleccionarCurso from './componentes/pages/SeleccionarCurso';
+import InformacionPago from './componentes/pages/InformacionPago';
 
 const Stack = createStackNavigator();
 
@@ -71,6 +72,7 @@ export default function App() {
           <Stack.Screen name="Chats" component={Chats} />
           <Stack.Screen name="CantInasistencias" component={CantInasistencias} />
           <Stack.Screen name="SeleccionarCurso" component={SeleccionarCurso} />
+          <Stack.Screen name="InformacionPago" component={InformacionPago} />
         </Stack.Navigator>
       </NavigationContainer>
     </UserProvider>
