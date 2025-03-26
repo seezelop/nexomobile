@@ -34,6 +34,9 @@ function Alumno({ navigation }) {
       <View style={styles.buttonContainer}>
         <Button title="Enviar Mensaje Privado" onPress={redirigirChat} />
       </View>
+      <View style={styles.buttonContainer}>
+        <Button title="Chats" onPress={redirigirChat} />
+      </View>
     </View>
   );
 }
