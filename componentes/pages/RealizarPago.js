@@ -1,16 +1,13 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, ActivityIndicator, Alert, Platform } from 'react-native';
+import { View, Text, TouchableOpacity, StyleSheet, ActivityIndicator, Alert, Linking } from 'react-native';
 import axios from 'axios';
-import { WebView } from 'react-native-webview';
-import { BACKEND_MP } from '../url';
-import { API_BASE_URL } from '../url';
 import { useNavigation } from '@react-navigation/native';
+import { BACKEND_MP, API_BASE_URL } from '../url';
 
 const RealizarPago = () => {
   const [loading, setLoading] = useState(true);
   const [precio, setPrecio] = useState(null);
-  const [modalVisible, setModalVisible] = useState(false);
-  const [preferenceId, setPreferenceId] = useState(null);
+  const [processingPayment, setProcessingPayment] = useState(false);
   const navigation = useNavigation();
   const detalle = "Cuota Escolar";
 
@@ -33,78 +30,61 @@ const RealizarPago = () => {
     fetchPrecio();
   }, []);
 
-  const getBackURL = (type) => {
-    // Lógica para manejar diferentes plataformas
-    if (Platform.OS === 'web') {
-      return 'http://localhost:3000/' + type;
-    } else if (Platform.OS === 'android' || Platform.OS === 'ios') {
-      return 'exp://192.168.0.160:8081/' + type;
-    }
-    return 'http://localhost:3000/' + type;
-  };
-
-  // Crear preferencia de pago
-  const crearPreferencia = async () => {
-    setLoading(true);
+  // Manejar el pago con MercadoPago
+  const handlePayment = async () => {
+    if (!precio) return;
+    
+    setProcessingPayment(true);
     try {
-      const response = await axios.post(BACKEND_MP, {
-        items: [
-          {
-            title: detalle,
-            quantity: 1,
-            unit_price: precio,
-          },
-        ]
+      // 1. Crear preferencia en tu backend
+      const response = await axios.post(`${BACKEND_MP}/crear-preferencia`, {
+        items: [{
+          title: detalle,
+          unit_price: parseFloat(precio),
+          quantity: 1
+        }],
+        platform: 'mobile' // Indicamos que es para mobile
       }, {
-        // 🔍 Configuraciones adicionales de Axios
-        timeout: 10000,
-        headers: {
-          'Content-Type': 'application/json',
-          'Accept': 'application/json'
-        }
+        withCredentials: true
       });
 
-      // 🔍 Log de respuesta completa
-      console.log('Respuesta completa:', response.data);
+      // 2. Abrir checkout de MercadoPago
+      const { preferenceId } = response.data;
+      const mpUrl = `https://mercadopago.com.ar/checkout/v1/redirect?pref_id=${preferenceId}`;
       
-      setPreferenceId(response.data.preferenceId);
-      setModalVisible(true);
+      // Verificar si se puede abrir el enlace
+      const canOpen = await Linking.canOpenURL(mpUrl);
+      if (canOpen) {
+        await Linking.openURL(mpUrl);
+      } else {
+        Alert.alert('Error', 'No se puede procesar el pago en este momento');
+      }
+
     } catch (error) {
-      // 🔍 Log de error exhaustivo
-      console.error("Error de solicitud completo:", JSON.stringify(error, null, 2));
-      console.error("Detalles del error:", {
-        mensaje: error.message,
-        codigo: error.code,
-        respuesta: error.response?.data,
-        solicitud: error.request?._url
-      });
-
-      // Alerta con más detalles
-      Alert.alert(
-        "Error de Conexión", 
-        `Detalles técnicos: 
-        - Mensaje: ${error.message}
-        - Código: ${error.code}
-        - URL: ${BACKEND_MP}`,
-        [
-          { text: "Reintentar", onPress: crearPreferencia },
-          { text: "Cancelar" }
-        ]
-      );
+      console.error("Error al procesar el pago:", error);
+      Alert.alert("Error", "No se pudo iniciar el proceso de pago");
     } finally {
-      setLoading(false);
+      setProcessingPayment(false);
     }
   };
 
-  // Manejar resultado del pago
-  const handlePaymentResult = (success) => {
-    setModalVisible(false);
-    if (success) {
-      navigation.navigate('Padre', { pagoExitoso: true });
-    } else {
-      Alert.alert("Pago no completado", "El pago no se completó correctamente");
-    }
-  };
+  // Manejar deep linking para retorno después del pago
+  useEffect(() => {
+    const handleDeepLink = (event) => {
+      if (event.url.includes('pago-exitoso')) {
+        navigation.navigate('/padre');
+      } else if (event.url.includes('pago-fallido')) {
+        navigation.navigate('/padre');
+      }
+    };
+
+    Linking.addEventListener('url', handleDeepLink);
+    
+    // Limpiar listener al desmontar
+    return () => {
+      Linking.removeEventListener('url', handleDeepLink);
+    };
+  }, [navigation]);
 
   return (
     <View style={styles.container}>
@@ -118,35 +98,16 @@ const RealizarPago = () => {
       </View>
 
       <TouchableOpacity
-        style={[styles.button, (loading || precio === null) && styles.disabledButton]}
-        onPress={crearPreferencia}
-        disabled={loading || precio === null}
+        style={[styles.button, (loading || precio === null || processingPayment) && styles.disabledButton]}
+        disabled={loading || precio === null || processingPayment}
+        onPress={handlePayment}
       >
-        {loading ? (
+        {processingPayment ? (
           <ActivityIndicator color="white" />
         ) : (
           <Text style={styles.buttonText}>Continuar con Mercado Pago</Text>
         )}
       </TouchableOpacity>
-
-      {/* Modal con WebView para MercadoPago */}
-      {modalVisible && (
-        <View style={styles.modalContainer}>
-          <WebView
-            source={{ uri: `https://www.mercadopago.com.ar/checkout/v1/redirect?pref_id=${preferenceId}` }}
-            style={styles.webview}
-            onNavigationStateChange={(navState) => {
-              // Manejar URLs de retorno (configura estas URLs en tu backend)
-              if (navState.url.includes('/padre')) {
-                handlePaymentResult(true);
-              } else if (navState.url.includes('/pago-fallido')) {
-                handlePaymentResult(false);
-              }
-            }}
-            onError={() => handlePaymentResult(false)}
-          />
-        </View>
-      )}
     </View>
   );
 };
@@ -199,17 +160,6 @@ const styles = StyleSheet.create({
     color: 'white',
     fontWeight: 'bold',
     fontSize: 16,
-  },
-  modalContainer: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
-    backgroundColor: 'white',
-  },
-  webview: {
-    flex: 1,
   },
 });
 
