@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, ActivityIndicator, Alert } from 'react-native';
+import { View, Text, TouchableOpacity, StyleSheet, ActivityIndicator, Alert, Platform } from 'react-native';
 import axios from 'axios';
 import { WebView } from 'react-native-webview';
+import { BACKEND_MP } from '../url';
 import { API_BASE_URL } from '../url';
 import { useNavigation } from '@react-navigation/native';
 
@@ -32,24 +33,64 @@ const RealizarPago = () => {
     fetchPrecio();
   }, []);
 
+  const getBackURL = (type) => {
+    // Lógica para manejar diferentes plataformas
+    if (Platform.OS === 'web') {
+      return 'http://localhost:3000/' + type;
+    } else if (Platform.OS === 'android' || Platform.OS === 'ios') {
+      return 'exp://192.168.0.160:8081/' + type;
+    }
+    return 'http://localhost:3000/' + type;
+  };
+
   // Crear preferencia de pago
   const crearPreferencia = async () => {
     setLoading(true);
     try {
-      const response = await axios.post("http://tu-backend.com/crear-preferencia", {
+      const response = await axios.post(BACKEND_MP, {
         items: [
           {
             title: detalle,
             quantity: 1,
             unit_price: precio,
           },
-        ],
+        ]
+      }, {
+        // 🔍 Configuraciones adicionales de Axios
+        timeout: 10000,
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json'
+        }
       });
+
+      // 🔍 Log de respuesta completa
+      console.log('Respuesta completa:', response.data);
+      
       setPreferenceId(response.data.preferenceId);
       setModalVisible(true);
     } catch (error) {
-      console.error("Error al crear la preferencia", error);
-      Alert.alert("Error", "No se pudo iniciar el proceso de pago");
+      // 🔍 Log de error exhaustivo
+      console.error("Error de solicitud completo:", JSON.stringify(error, null, 2));
+      console.error("Detalles del error:", {
+        mensaje: error.message,
+        codigo: error.code,
+        respuesta: error.response?.data,
+        solicitud: error.request?._url
+      });
+
+      // Alerta con más detalles
+      Alert.alert(
+        "Error de Conexión", 
+        `Detalles técnicos: 
+        - Mensaje: ${error.message}
+        - Código: ${error.code}
+        - URL: ${BACKEND_MP}`,
+        [
+          { text: "Reintentar", onPress: crearPreferencia },
+          { text: "Cancelar" }
+        ]
+      );
     } finally {
       setLoading(false);
     }
@@ -96,7 +137,7 @@ const RealizarPago = () => {
             style={styles.webview}
             onNavigationStateChange={(navState) => {
               // Manejar URLs de retorno (configura estas URLs en tu backend)
-              if (navState.url.includes('/pago-exitoso')) {
+              if (navState.url.includes('/padre')) {
                 handlePaymentResult(true);
               } else if (navState.url.includes('/pago-fallido')) {
                 handlePaymentResult(false);
