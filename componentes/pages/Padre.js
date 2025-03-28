@@ -31,6 +31,9 @@ function Padre({ navigation }) {
   const redirigirPago = () => {
     navigation.navigate('InformacionPago');
   };
+  const redirigirMp = () => {
+    navigation.navigate('RealizarPago');
+  };
 
   useEffect(() => {
     const status = route.params?.status; // Obtener el parámetro de la ruta
@@ -93,6 +96,9 @@ function Padre({ navigation }) {
       </View>
       <View style={styles.buttonContainer}>
         <Button title="Chats" onPress={redirigirChat} />
+      </View>
+      <View style={styles.buttonContainer}>
+        <Button title="Pagar Cuota" onPress={redirigirMp} />
       </View>
 
 
