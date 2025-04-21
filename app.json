@@ -10,8 +10,7 @@
     "newArchEnabled": true,
     "plugins": [
       "react-native-reanimated",
-      "react-native-vector-icons",
-      "react-native-gesture-handler"
+      "react-native-vector-icons"
     ],
     "splash": {
       "image": "./assets/splash-icon.png",
