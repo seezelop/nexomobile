@@ -5,9 +5,10 @@ module.exports = {
         'module-resolver',
         {
           alias: {
-            'react-native-reanimated': 'react-native-reanimated/lib/commonjs/Animated'
+            'react-native-reanimated': 'react-native-reanimated/lib/commonjs'
           }
         }
-      ]
+      ],
+      'react-native-reanimated/plugin'
     ]
   };

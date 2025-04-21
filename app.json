@@ -11,7 +11,7 @@
     "plugins": [
       "react-native-reanimated",
       {
-        "disableForTests": true
+        "disableAnimations": false
       },
       "react-native-vector-icons"
     ],
