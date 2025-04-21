@@ -13,6 +13,7 @@ const ChatIndividual = () => {
   const [editandoId, setEditandoId] = useState(null);
   const [nuevoContenido, setNuevoContenido] = useState("");
   const [userEmail, setUserEmail] = useState("");
+  const [loading, setLoading] = useState(false);
 
   const axiosInstance = axios.create({
     baseURL: API_BASE_URL,
@@ -23,13 +24,29 @@ const ChatIndividual = () => {
   });
 
   //ESTO ES PARA QUE EL MENSAJE PUEDA EDITARSE
-   const axiosInstance2 = axios.create({
-      baseURL: API_BASE_URL,
-      withCredentials: true,
-      headers: {
-        'Content-Type': 'text/plain',
-      }
-    });
+  const axiosInstance2 = axios.create({
+    baseURL: API_BASE_URL,
+    withCredentials: true,
+    headers: {
+      'Content-Type': 'text/plain',
+    }
+  });
+
+  const cargarMensajes = async () => {
+    try {
+      setLoading(true);
+      const response = await axiosInstance.get(
+        `/obtenerMensajesEntreUsuarios/${mail}`,
+        { withCredentials: true }
+      );
+      setMensajes(response.status === 204 ? [] : response.data);
+    } catch (error) {
+      console.error("Error al cargar los mensajes:", error);
+      Alert.alert("Error", "No se pudieron cargar los mensajes");
+    } finally {
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
     const obtenerUsuarioAutenticado = async () => {
@@ -40,6 +57,7 @@ const ChatIndividual = () => {
         setUserEmail(response.data);
       } catch (error) {
         console.error("Error al obtener el usuario autenticado:", error);
+        Alert.alert("Error", "No se pudo obtener la información del usuario");
       }
     };
 
@@ -47,20 +65,10 @@ const ChatIndividual = () => {
   }, []);
 
   useEffect(() => {
-    const cargarMensajes = async () => {
-      try {
-        const response = await axiosInstance.get(
-          `/obtenerMensajesEntreUsuarios/${mail}`,
-          { withCredentials: true }
-        );
-        setMensajes(response.status === 204 ? [] : response.data);
-      } catch (error) {
-        console.error("Error al cargar los mensajes:", error);
-      }
-    };
-
-    cargarMensajes();
-  }, [mail]);
+    if (userEmail) {
+      cargarMensajes();
+    }
+  }, [mail, userEmail]);
 
   const enviarMensaje = async () => {
     if (!mensaje.trim() || mensaje.length < 2 || mensaje.length > 255) {
@@ -71,20 +79,31 @@ const ChatIndividual = () => {
     const nuevoMensaje = { contenido: mensaje, destinatario: mail };
 
     try {
+      setLoading(true);
       await axiosInstance.post('/nuevoMensaje', nuevoMensaje, {
         headers: { "Content-Type": "application/json" },
         withCredentials: true,
       });
 
-      setMensajes([...mensajes, { idMensaje: Date.now(), contenido: mensaje, mail: userEmail }]);
+      // Recargar mensajes en lugar de añadir uno localmente
+      await cargarMensajes();
       setMensaje("");
     } catch (error) {
       console.error("Error al enviar el mensaje:", error);
+      Alert.alert("Error", "No se pudo enviar el mensaje");
+    } finally {
+      setLoading(false);
     }
   };
 
   const editarMensaje = async (idMensaje, nuevoContenido) => {
+    if (!nuevoContenido.trim()) {
+      Alert.alert("Error", "El mensaje no puede estar vacío");
+      return;
+    }
+
     try {
+      setLoading(true);
       await axiosInstance2.patch(`/editarMensajePrivado/${idMensaje}`, nuevoContenido, {
         headers: { "Content-Type": "text/plain" },
         withCredentials: true,
@@ -96,16 +115,39 @@ const ChatIndividual = () => {
       setEditandoId(null);
     } catch (error) {
       console.error("Error al editar el mensaje:", error);
+      Alert.alert("Error", "No se pudo editar el mensaje");
+    } finally {
+      setLoading(false);
     }
   };
 
   const borrarMensaje = async (idMensaje) => {
-    try {
-      await axiosInstance.delete(`/borrarMensaje/${idMensaje}`, { withCredentials: true });
-      setMensajes(mensajes.filter((msg) => msg.idMensaje !== idMensaje));
-    } catch (error) {
-      console.error("Error al borrar el mensaje:", error);
-    }
+    // Confirmar antes de borrar
+    Alert.alert(
+      "Confirmar",
+      "¿Estás seguro de que deseas eliminar este mensaje?",
+      [
+        { 
+          text: "Cancelar", 
+          style: "cancel" 
+        },
+        { 
+          text: "Eliminar", 
+          onPress: async () => {
+            try {
+              setLoading(true);
+              await axiosInstance.delete(`/borrarMensaje/${idMensaje}`, { withCredentials: true });
+              setMensajes(mensajes.filter((msg) => msg.idMensaje !== idMensaje));
+            } catch (error) {
+              console.error("Error al borrar el mensaje:", error);
+              Alert.alert("Error", "No se pudo borrar el mensaje");
+            } finally {
+              setLoading(false);
+            }
+          }
+        }
+      ]
+    );
   };
 
   const renderMensaje = (msg) => {
@@ -122,7 +164,7 @@ const ChatIndividual = () => {
           }
         ]}
       >
-        <Text style={styles.mensajeEmail}>{msg.mail}:</Text>
+        <Text style={styles.mensajeEmail}>{isOwnMessage ? "Tú" : msg.mail}</Text>
         
         {editandoId === msg.idMensaje ? (
           <TextInput
@@ -187,14 +229,15 @@ const ChatIndividual = () => {
           onChangeText={setMensaje}
           placeholder="Escribe un mensaje..."
           style={styles.input}
+          editable={!loading}
         />
         <TouchableOpacity 
           onPress={enviarMensaje}
-          disabled={mensaje.length < 2 || mensaje.length > 255}
+          disabled={mensaje.length < 2 || mensaje.length > 255 || loading}
           style={[
             styles.botonEnviar, 
             { 
-              opacity: (mensaje.length < 2 || mensaje.length > 255) ? 0.5 : 1 
+              opacity: (mensaje.length < 2 || mensaje.length > 255 || loading) ? 0.5 : 1 
             }
           ]}
         >
