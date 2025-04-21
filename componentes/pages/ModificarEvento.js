@@ -3,191 +3,240 @@ import {
   View, 
   Text, 
   TextInput, 
-  Button, 
-  Platform, 
-  TouchableOpacity, 
   StyleSheet, 
   ScrollView,
   ActivityIndicator,
-  Alert
+  Alert,
+  TouchableOpacity,
+  Platform
 } from 'react-native';
 import { Picker } from '@react-native-picker/picker';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import axios from 'axios';
 import { API_BASE_URL } from "../url";
 
+// Crear una instancia de axios con la URL base y cookies
+const api = axios.create({
+  baseURL: API_BASE_URL,
+  withCredentials: true,
+});
+
 const ModificarEvento = () => {
-  // Estados del formulario
-  const [formData, setFormData] = useState({
-    descripcion: '',
-    fecha: new Date(),
-    cursoId: '',
-    eventoId: ''
-  });
-  
-  // Estados para UI y carga
-  const [showPicker, setShowPicker] = useState(false);
-  const [pickerMode, setPickerMode] = useState('date');
+  // Estados
+  const [descripcion, setDescripcion] = useState("");
+  const [fecha, setFecha] = useState(new Date());
+  const [respuesta, setRespuesta] = useState('');
   const [cursos, setCursos] = useState([]);
+  const [cursoSeleccionado, setCursoSeleccionado] = useState("");
   const [eventos, setEventos] = useState([]);
+  const [eventoSeleccionado, setEventoSeleccionado] = useState("");
+  
+  // Estados UI
   const [loading, setLoading] = useState({
     cursos: false,
     eventos: false,
     envio: false
   });
+  const [showDatePicker, setShowDatePicker] = useState(false);
+  const [pickerMode, setPickerMode] = useState('date');
 
-  // Cargar cursos al montar el componente
+  // Cargar cursos al iniciar
   useEffect(() => {
-    const cargarCursos = async () => {
-      setLoading(prev => ({ ...prev, cursos: true }));
-      try {
-        const response = await axios.get(`${API_BASE_URL}/api/usuario/verCursoProfesor`, {
-          withCredentials: true,
-        });
-        setCursos(response.data);
-      } catch (error) {
-        handleError('No se pudieron cargar los cursos', error);
-      } finally {
-        setLoading(prev => ({ ...prev, cursos: false }));
-      }
-    };
-
     cargarCursos();
   }, []);
 
-  // Cargar eventos cuando se selecciona un curso
-  useEffect(() => {
-    if (formData.cursoId) {
-      cargarEventos(formData.cursoId);
-    } else {
-      setEventos([]);
-      setFormData(prev => ({ ...prev, eventoId: '' }));
+  const cargarCursos = async () => {
+    setLoading(prev => ({ ...prev, cursos: true }));
+    try {
+      const response = await api.get("/api/usuario/verCursoProfesor");
+      setCursos(response.data);
+    } catch (error) {
+      console.error("Error al cargar los cursos:", error);
+      Alert.alert("Error", "No se pudieron cargar los cursos");
+    } finally {
+      setLoading(prev => ({ ...prev, cursos: false }));
     }
-  }, [formData.cursoId]);
+  };
 
   const cargarEventos = async (cursoId) => {
+    if (!cursoId) return;
+    
     setLoading(prev => ({ ...prev, eventos: true }));
     try {
-      const response = await axios.get(`${API_BASE_URL}/api/usuario/verEventos/${cursoId}`, {
-        withCredentials: true,
-      });
+      const response = await api.get(`/api/usuario/verEventos/${cursoId}`);
       setEventos(response.data);
     } catch (error) {
-      handleError('No se pudieron cargar los eventos', error);
+      console.error("Error al cargar los eventos:", error);
+      Alert.alert("Error", "No se pudieron cargar los eventos");
     } finally {
       setLoading(prev => ({ ...prev, eventos: false }));
     }
   };
 
+  // Manejar cambio de curso y cargar sus eventos
+  const handleCursoChange = (cursoId) => {
+    setCursoSeleccionado(cursoId);
+    setEventoSeleccionado(""); // Resetear evento seleccionado
+    
+    if (cursoId) {
+      cargarEventos(cursoId);
+    } else {
+      setEventos([]);
+    }
+  };
+
   // Cargar datos del evento seleccionado
   useEffect(() => {
-    if (formData.eventoId) {
-      const evento = eventos.find(e => e.idEvento.toString() === formData.eventoId);
-      if (evento) {
-        setFormData(prev => ({
-          ...prev,
-          descripcion: evento.descripcion,
-          fecha: new Date(evento.fecha)
-        }));
+    if (eventoSeleccionado) {
+      const eventoActual = eventos.find(e => e.idEvento.toString() === eventoSeleccionado);
+      if (eventoActual) {
+        setDescripcion(eventoActual.descripcion);
+        
+        // Convertir fecha string a Date
+        try {
+          setFecha(new Date(eventoActual.fecha));
+        } catch (error) {
+          console.error("Error convirtiendo fecha:", error);
+          setFecha(new Date());
+        }
       }
     }
-  }, [formData.eventoId]);
+  }, [eventoSeleccionado, eventos]);
 
-  const handleError = (message, error) => {
-    console.error(message, error);
-    Alert.alert('Error', error.response?.data?.message || message);
-  };
-
-  const handleChange = (name, value) => {
-    setFormData(prev => ({ ...prev, [name]: value }));
-  };
-
-  // Función para formatear fecha al formato que espera el backend
-  const formatDateForBackend = (date) => {
-    const year = date.getFullYear();
-    const month = String(date.getMonth() + 1).padStart(2, '0');
-    const day = String(date.getDate()).padStart(2, '0');
-    const hours = String(date.getHours()).padStart(2, '0');
-    const minutes = String(date.getMinutes()).padStart(2, '0');
-    
-    return `${year}-${month}-${day}T${hours}:${minutes}`;  
-  };
-
- 
+  // Funciones para el DateTimePicker
   const mostrarDateTimePicker = () => {
     if (Platform.OS === 'android') {
       setPickerMode('date');
     } else {
       setPickerMode('datetime');
     }
-    setShowPicker(true);
+    setShowDatePicker(true);
   };
 
   const handleDateChange = (event, selectedDate) => {
-    setShowPicker(false);
+    // En Android "cancel" devuelve tipo undefined
+    if (event.type === 'dismissed') {
+      setShowDatePicker(false);
+      return;
+    }
     
-    if (event.type === 'set' && selectedDate) {
-      const currentDate = selectedDate || formData.fecha;
-      setFormData(prev => ({ ...prev, fecha: currentDate }));
-
+    setShowDatePicker(false);
+    
+    if (selectedDate) {
+      setFecha(selectedDate);
+      
       // Para Android: después de seleccionar fecha, mostrar selector de hora
       if (Platform.OS === 'android' && pickerMode === 'date') {
         setTimeout(() => {
           setPickerMode('time');
-          setShowPicker(true);
+          setShowDatePicker(true);
         }, 100);
       }
     }
   };
 
+  // Formatear fecha para mostrar en UI
   const formatearFechaParaMostrar = (date) => {
-    return date.toLocaleString('es-AR', {
-      day: '2-digit',
-      month: '2-digit',
-      year: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit'
-    }).replace(',', '');
+    if (!date) return "Sin fecha seleccionada";
+    
+    try {
+      return date.toLocaleString('es-AR', {
+        day: '2-digit',
+        month: '2-digit',
+        year: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit'
+      }).replace(',', '');
+    } catch (e) {
+      console.error("Error formateando fecha:", e);
+      return "Fecha inválida";
+    }
   };
 
+const formatDateForBackend = (date) => {
+  if (!date) return null;
+  
+  try {
+    const validDate = new Date(date);
+    
+    // Verificar que sea una fecha válida
+    if (isNaN(validDate.getTime())) {
+      console.error("Fecha inválida");
+      return null;
+    }
+    
+    const year = validDate.getFullYear();
+    const month = String(validDate.getMonth() + 1).padStart(2, '0');
+    const day = String(validDate.getDate()).padStart(2, '0');
+    const hours = String(validDate.getHours()).padStart(2, '0');
+    const minutes = String(validDate.getMinutes()).padStart(2, '0');
+    const seconds = String(validDate.getSeconds()).padStart(2, '0');
+    
+    // Formato YYYY-MM-DD HH:MM:SS
+    return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
+  } catch (e) {
+    console.error("Error formateando fecha para backend:", e);
+    return null;
+  }
+};
+
+  // Validación de formulario
   const validarFormulario = () => {
-    if (!formData.eventoId) {
+    if (!eventoSeleccionado) {
       Alert.alert('Error', 'Debe seleccionar un evento');
       return false;
     }
     return true;
   };
 
-  const handleSubmit = async () => {
+  // Envío de formulario
+  const manejarEnvio = async () => {
     if (!validarFormulario()) return;
-
+    
     setLoading(prev => ({ ...prev, envio: true }));
-
-    const payload = {
-      idEvento: parseInt(formData.eventoId),
-      ...(formData.descripcion && { descripcion: formData.descripcion }),
-      fecha: formatDateForBackend(formData.fecha),
+    
+    // Construir payload con solo los campos necesarios
+    const eventoData = {
+      idEvento: parseInt(eventoSeleccionado),
     };
-
+    
+    // Solo agregar descripción si se modificó
+    if (descripcion.trim() !== '') {
+      eventoData.descripcion = descripcion;
+    }
+    
+    // Solo agregar fecha si es válida
+    const formattedFecha = formatDateForBackend(fecha);
+    if (formattedFecha) {
+      eventoData.fecha = formattedFecha;
+    }
+    
     try {
-      await axios.patch(
-        `${API_BASE_URL}/api/usuario/modificarEvento`,
-        payload,
+      const response = await api.patch(
+        "/api/usuario/modificarEvento",
+        eventoData,
         {
-          withCredentials: true,
-          headers: { 
-            'Content-Type': 'application/json',
-          },
+          headers: { 'Content-Type': 'application/json' }
         }
       );
 
-      Alert.alert('Éxito', 'Evento modificado correctamente');
-      // Recargar eventos si hay un curso seleccionado
-      if (formData.cursoId) {
-        cargarEventos(formData.cursoId);
+      if (response.status === 200) {
+        setRespuesta('Evento editado exitosamente.');
+        Alert.alert("Éxito", "Evento modificado correctamente");
+        
+        // Recargar eventos para ver cambios
+        if (cursoSeleccionado) {
+          cargarEventos(cursoSeleccionado);
+        }
       }
     } catch (error) {
-      handleError('Error al modificar el evento', error);
+      console.error("Error completo:", error);
+      const mensajeError = error.response?.data?.message || 
+                         typeof error.response?.data === "string" ? 
+                         error.response.data : "Error al modificar el evento";
+      
+      setRespuesta(mensajeError);
+      Alert.alert("Error", mensajeError);
     } finally {
       setLoading(prev => ({ ...prev, envio: false }));
     }
@@ -195,7 +244,8 @@ const ModificarEvento = () => {
 
   return (
     <ScrollView 
-      contentContainerStyle={styles.container}
+      style={styles.container}
+      contentContainerStyle={styles.contentContainer}
       keyboardShouldPersistTaps="handled"
     >
       {/* Selector de Curso */}
@@ -204,20 +254,22 @@ const ModificarEvento = () => {
         {loading.cursos ? (
           <ActivityIndicator size="small" color="#0000ff" />
         ) : (
-          <Picker
-            selectedValue={formData.cursoId}
-            onValueChange={(value) => handleChange('cursoId', value)}
-            style={styles.picker}
-          >
-            <Picker.Item label="Seleccione un curso" value="" />
-            {cursos.map((curso) => (
-              <Picker.Item 
-                key={curso.idCurso} 
-                label={`${curso.numero} ${curso.division}`} 
-                value={curso.idCurso} 
-              />
-            ))}
-          </Picker>
+          <View style={styles.pickerContainer}>
+            <Picker
+              selectedValue={cursoSeleccionado}
+              onValueChange={handleCursoChange}
+              style={styles.picker}
+            >
+              <Picker.Item label="Seleccione un curso" value="" />
+              {cursos.map((curso) => (
+                <Picker.Item 
+                  key={curso.idCurso} 
+                  label={`${curso.numero} ${curso.division}`} 
+                  value={curso.idCurso.toString()} 
+                />
+              ))}
+            </Picker>
+          </View>
         )}
       </View>
 
@@ -227,21 +279,23 @@ const ModificarEvento = () => {
         {loading.eventos ? (
           <ActivityIndicator size="small" color="#0000ff" />
         ) : (
-          <Picker
-            selectedValue={formData.eventoId}
-            onValueChange={(value) => handleChange('eventoId', value)}
-            enabled={!!formData.cursoId}
-            style={styles.picker}
-          >
-            <Picker.Item label="Seleccione un evento" value="" />
-            {eventos.map((evento) => (
-              <Picker.Item 
-                key={evento.idEvento} 
-                label={evento.descripcion} 
-                value={evento.idEvento.toString()} 
-              />
-            ))}
-          </Picker>
+          <View style={styles.pickerContainer}>
+            <Picker
+              selectedValue={eventoSeleccionado}
+              onValueChange={(value) => setEventoSeleccionado(value)}
+              enabled={cursoSeleccionado !== ""}
+              style={styles.picker}
+            >
+              <Picker.Item label="Seleccione un evento" value="" />
+              {eventos.map((evento) => (
+                <Picker.Item 
+                  key={evento.idEvento} 
+                  label={evento.descripcion} 
+                  value={evento.idEvento.toString()} 
+                />
+              ))}
+            </Picker>
+          </View>
         )}
       </View>
 
@@ -250,68 +304,79 @@ const ModificarEvento = () => {
         <Text style={styles.label}>Descripción:</Text>
         <TextInput
           style={styles.input}
-          value={formData.descripcion}
-          onChangeText={(text) => handleChange('descripcion', text)}
+          value={descripcion}
+          onChangeText={setDescripcion}
           placeholder="Deje en blanco para mantener la descripción actual"
           multiline
           numberOfLines={3}
         />
       </View>
 
-      {/* Selector de Fecha y Hora */}
+      {/* Selector de Fecha */}
       <View style={styles.section}>
         <Text style={styles.label}>Fecha y Hora:</Text>
         <TouchableOpacity 
           onPress={mostrarDateTimePicker} 
           style={styles.dateButton}
         >
-          <Text>{formatearFechaParaMostrar(formData.fecha)}</Text>
+          <Text style={styles.dateButtonText}>
+            {formatearFechaParaMostrar(fecha)}
+          </Text>
         </TouchableOpacity>
         
-        {showPicker && (
+        {showDatePicker && (
           <DateTimePicker
-            value={formData.fecha}
+            value={fecha}
             mode={pickerMode}
             is24Hour={true}
             display={Platform.OS === 'android' ? 'default' : 'spinner'}
             onChange={handleDateChange}
-            minimumDate={new Date()}
-            {...(Platform.OS === 'android' && {
-              positiveButtonLabel: 'Seleccionar',
-              negativeButtonLabel: 'Cancelar'
-            })}
           />
         )}
       </View>
 
       {/* Botón de Envío */}
-      <View style={styles.section}>
-        <Button 
-          title={loading.envio ? "Procesando..." : "Modificar Evento"} 
-          onPress={handleSubmit} 
-          disabled={loading.envio || !formData.eventoId}
-          color="#4a90e2"
-        />
-      </View>
+      <TouchableOpacity 
+        style={[
+          styles.submitButton,
+          (loading.envio || !eventoSeleccionado) && styles.submitButtonDisabled
+        ]}
+        onPress={manejarEnvio}
+        disabled={loading.envio || !eventoSeleccionado}
+      >
+        <Text style={styles.submitButtonText}>
+          {loading.envio ? "Procesando..." : "Modificar Evento"}
+        </Text>
+      </TouchableOpacity>
+
+      {/* Mensaje de respuesta */}
+      {respuesta ? (
+        <View style={styles.alertContainer}>
+          <Text style={styles.alertText}>{respuesta}</Text>
+        </View>
+      ) : null}
     </ScrollView>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
-    padding: 20,
+    flex: 1,
     backgroundColor: '#f5f5f5',
   },
+  contentContainer: {
+    padding: 16,
+  },
   section: {
-    marginBottom: 20,
+    marginBottom: 16,
     backgroundColor: 'white',
     borderRadius: 8,
-    padding: 15,
+    padding: 16,
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
+    shadowOffset: { width: 0, height: 1 },
     shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 2,
+    shadowRadius: 3,
+    elevation: 3,
   },
   label: {
     fontSize: 16,
@@ -325,19 +390,55 @@ const styles = StyleSheet.create({
     borderRadius: 6,
     padding: 12,
     fontSize: 16,
-    minHeight: 50,
+    minHeight: 100,
+    textAlignVertical: 'top',
   },
-  picker: {
+  pickerContainer: {
     borderWidth: 1,
     borderColor: '#ddd',
     borderRadius: 6,
+    marginBottom: 5,
+  },
+  picker: {
+    height: 50,
   },
   dateButton: {
     borderWidth: 1,
     borderColor: '#ddd',
     borderRadius: 6,
     padding: 12,
+    backgroundColor: 'white',
   },
+  dateButtonText: {
+    fontSize: 16,
+    color: '#333',
+  },
+  submitButton: {
+    backgroundColor: '#007bff',
+    borderRadius: 8,
+    padding: 16,
+    alignItems: 'center',
+    marginTop: 8,
+    marginBottom: 16,
+  },
+  submitButtonDisabled: {
+    backgroundColor: '#cccccc',
+  },
+  submitButtonText: {
+    color: 'white',
+    fontWeight: 'bold',
+    fontSize: 16,
+  },
+  alertContainer: {
+    backgroundColor: '#d4edff',
+    borderRadius: 8,
+    padding: 16,
+    marginBottom: 16,
+  },
+  alertText: {
+    fontSize: 16,
+    color: '#333',
+  }
 });
 
 export default ModificarEvento;
