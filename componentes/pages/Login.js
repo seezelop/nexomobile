@@ -55,9 +55,6 @@ export default function Login({ navigation }) {
 
         // Navega según el rol
         switch (userRole.toLowerCase()) {
-          case 'super admin':
-            navigation.navigate('Admin');
-            break;
           case 'jefe colegio':
             navigation.navigate('JefeColegio');
             break;

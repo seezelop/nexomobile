@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, ActivityIndicator, Alert, Linking } from 'react-native';
 import axios from 'axios';
@@ -71,18 +72,24 @@ const RealizarPago = () => {
   // Manejar deep linking para retorno después del pago
   useEffect(() => {
     const handleDeepLink = (event) => {
-      if (event.url.includes('pago-exitoso')) {
-        navigation.navigate('/padre');
-      } else if (event.url.includes('pago-fallido')) {
-        navigation.navigate('/padre');
+      // La URL podría estar en event.url o directamente en event dependiendo de la implementación
+      const url = event.url || event;
+      
+      if (typeof url === 'string') {
+        if (url.includes('pago-exitoso')) {
+          navigation.navigate('/padre');
+        } else if (url.includes('pago-fallido')) {
+          navigation.navigate('/padre');
+        }
       }
     };
 
-    Linking.addEventListener('url', handleDeepLink);
+    // Usar addListener en lugar de addEventListener (API moderna)
+    const subscription = Linking.addListener('url', handleDeepLink);
     
-    // Limpiar listener al desmontar
+    // Limpiar listener al desmontar usando la API moderna
     return () => {
-      Linking.removeEventListener('url', handleDeepLink);
+      subscription.remove();
     };
   }, [navigation]);
 
