@@ -9,11 +9,7 @@
     "scheme": "nexomobile",
     "newArchEnabled": true,
     "plugins": [
-      "react-native-reanimated",
-      {
-        "disableAnimations": false
-      },
-      "react-native-vector-icons"
+      
     ],
     "splash": {
       "image": "./assets/splash-icon.png",
