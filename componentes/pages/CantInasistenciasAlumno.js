@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { View, Text, ActivityIndicator, StyleSheet } from "react-native";
-import { API_BASE_URL } from '../url';
+import { API_BASE_URL } from '../../url';
 
 function CantInasistenciasAlumno() {
   const [inasistencias, setInasistencias] = useState(null);

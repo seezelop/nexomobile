@@ -3,7 +3,7 @@ import { View, Text, StyleSheet, ActivityIndicator, Alert, TouchableOpacity, Fla
 import { Picker } from '@react-native-picker/picker';
 import axios from 'axios';
 import { Card, CheckBox } from 'react-native-elements';
-import { API_BASE_URL } from "../url";
+import { API_BASE_URL } from  '../../url';
 
 const GestionarAsistenciaAlumnos = () => {
   const [cursos, setCursos] = useState([]);

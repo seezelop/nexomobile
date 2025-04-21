@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import { View, Text, TextInput, FlatList, StyleSheet, Button } from 'react-native';
 import axios from 'axios';
-import { API_BASE_URL } from '../url';
+import { API_BASE_URL } from  '../../url';
 import { Picker } from '@react-native-picker/picker';
 
 class SeleccionarCurso extends Component {

@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, ScrollView, ActivityIndicator, StyleSheet } from 'react-native';
 import axios from 'axios';
-import { API_BASE_URL } from '../url';
+import { API_BASE_URL } from  '../../url';
 
 function InformacionCursoAlumno() {
   const [infoCurso, setInfoCurso] = useState(null);

@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { View, Text, Button, Alert, ActivityIndicator, StyleSheet, FlatList, TouchableOpacity } from 'react-native';
 import { Picker } from '@react-native-picker/picker';
-import { API_BASE_URL } from "../url";
+import { API_BASE_URL } from '../../url';
 
 function BajaEvento() {
   const [cursos, setCursos] = useState([]);

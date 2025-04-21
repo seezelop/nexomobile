@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
-import { View, Text, ActivityIndicator, StyleSheet, Alert } from "react-native";
+import { View, Text, ActivityIndicator, StyleSheet } from "react-native";
 import axios from "axios";
-import { API_BASE_URL } from "../url";
+import { API_BASE_URL } from  '../../url';
 
 const InformacionPago = () => {
   const [infoPago, setInfoPago] = useState("");

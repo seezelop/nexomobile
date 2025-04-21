@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { View, Text, StyleSheet, ActivityIndicator, Button } from 'react-native';
 import { useRoute } from '@react-navigation/native';
 import axios from 'axios';
-import { API_BASE_URL } from '../url';
+import { API_BASE_URL } from '../../url';
 import { useNavigation } from '@react-navigation/native';
 
 function Padre({ navigation }) {

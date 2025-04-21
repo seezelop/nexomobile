@@ -6,8 +6,13 @@
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",
-    "scheme": "nexomobile",  
+    "scheme": "nexomobile",
     "newArchEnabled": true,
+    "plugins": [
+      "react-native-reanimated",
+      "react-native-vector-icons",
+      "react-native-gesture-handler"
+    ],
     "splash": {
       "image": "./assets/splash-icon.png",
       "resizeMode": "contain",
@@ -30,13 +35,21 @@
               "host": "padre"
             }
           ],
-          "category": ["BROWSABLE", "DEFAULT"]
+          "category": [
+            "BROWSABLE",
+            "DEFAULT"
+          ]
         }
-      ]
-
+      ],
+      "package": "com.martina003.nexomobile"
     },
     "web": {
       "favicon": "./assets/favicon.png"
+    },
+    "extra": {
+      "eas": {
+        "projectId": "9845cc2f-5d67-4af8-86df-3d10c82f932c"
+      }
     }
   }
 }

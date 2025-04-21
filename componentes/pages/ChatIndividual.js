@@ -3,7 +3,7 @@ import { View, Text, TextInput, TouchableOpacity, ScrollView, StyleSheet, SafeAr
 import axios from "axios";
 import { useRoute } from "@react-navigation/native";
 import Icon from "react-native-vector-icons/FontAwesome";
-import { API_BASE_URL } from '../url';
+import { API_BASE_URL } from '../../url';
 
 const ChatIndividual = () => {
   const route = useRoute();

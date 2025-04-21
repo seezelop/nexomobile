@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { View, Text, ActivityIndicator, ScrollView, Alert } from "react-native";
 import { Card } from "react-native-paper";
-import { API_BASE_URL } from '../url';
+import { API_BASE_URL } from  '../../url';
 
 function VerNovedades() {
   const [novedades, setNovedades] = useState([]);

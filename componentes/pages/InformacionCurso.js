@@ -3,7 +3,7 @@ import { View, Text, StyleSheet, ActivityIndicator, FlatList, Button } from 'rea
 import { Picker } from '@react-native-picker/picker';
 import { useNavigation } from '@react-navigation/native';
 import axios from 'axios';
-import { API_BASE_URL } from '../url';
+import { API_BASE_URL } from  '../../url';
 
 function InformacionCurso() {
   const [hijos, setHijos] = useState([]);

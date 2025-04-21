@@ -13,7 +13,7 @@ import {
 import { Picker } from '@react-native-picker/picker';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import axios from 'axios';
-import { API_BASE_URL } from "../url";
+import { API_BASE_URL } from  '../../url';
 
 // Crear una instancia de axios con la URL base y cookies
 const api = axios.create({

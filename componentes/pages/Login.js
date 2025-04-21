@@ -3,7 +3,7 @@ import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert } from 'reac
 import { UserContext } from '../../context/UserContext';  // Importa el contexto
 import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { API_BASE_URL } from '../url';
+import { API_BASE_URL } from '../../url';
 
 export default function Login({ navigation }) {
   const [username, setUsername] = useState('');

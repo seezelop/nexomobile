@@ -12,7 +12,7 @@ import {
 import { Picker } from '@react-native-picker/picker';
 import { CheckBox } from 'react-native-elements';
 import axios from 'axios';
-import { API_BASE_URL } from "../url";
+import { API_BASE_URL } from  '../../url';
 
 const GestionarAsistenciaProfesor = () => {
   const [profesores, setProfesores] = useState([]);

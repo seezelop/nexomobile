@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { View, Text, StyleSheet, ActivityIndicator } from "react-native";
 import { Picker } from "@react-native-picker/picker";
 import axios from "axios";
-import { API_BASE_URL } from '../url';
+import { API_BASE_URL } from '../../url';
 
 function CantInasistencias() {
   const [inasistencias, setInasistencias] = useState(null);

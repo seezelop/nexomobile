@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { View, Text, TextInput, Button, Alert, StyleSheet, ScrollView } from 'react-native';
 import { Picker } from '@react-native-picker/picker';
 import axios from 'axios';
-import { API_BASE_URL } from '../url';
+import { API_BASE_URL } from '../../url';
  
 
 function AltaComunicacion() {

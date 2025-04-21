@@ -3,7 +3,7 @@ import { View, Text, FlatList, TouchableOpacity, StyleSheet, SafeAreaView, Alert
 } from "react-native";
 import axios from "axios";
 import { useNavigation } from "@react-navigation/native";
-import { API_BASE_URL } from '../url';
+import { API_BASE_URL } from '../../url';
 
 const Chats = () => {
   const [usuarios, setUsuarios] = useState([]);

@@ -3,7 +3,7 @@ import React, { useState, useEffect } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, ActivityIndicator, Alert, Linking } from 'react-native';
 import axios from 'axios';
 import { useNavigation } from '@react-navigation/native';
-import { BACKEND_MP, API_BASE_URL } from '../url';
+import { BACKEND_MP, API_BASE_URL } from  '../../url';
 
 const RealizarPago = () => {
   const [loading, setLoading] = useState(true);
