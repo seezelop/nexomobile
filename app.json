@@ -10,6 +10,9 @@
     "newArchEnabled": true,
     "plugins": [
       "react-native-reanimated",
+      {
+        "disableForTests": true
+      },
       "react-native-vector-icons"
     ],
     "splash": {
