@@ -104,12 +104,12 @@ const GestionarAsistenciaProfesor = () => {
     setError(null);
     
     try {
-      console.log('Obteniendo lista de profesores...');
+      //console.log('Obteniendo lista de profesores...');
       const response = await axios.get(`${API_BASE_URL}/api/usuario/verProfesAdministrativo`, { 
         withCredentials: true 
       });
       
-      console.log('Profesores obtenidos:', response.data.length);
+      //console.log('Profesores obtenidos:', response.data.length);
       setProfesores(response.data);
       
       // Inicializar asistencia para cada profesor
@@ -138,7 +138,7 @@ const GestionarAsistenciaProfesor = () => {
         withCredentials: true 
       });
       
-      console.log('Fechas obtenidas:', response.data.length);
+      //console.log('Fechas obtenidas:', response.data.length);
       setFechasAsistencias(response.data);
     } catch (err) {
       console.error('Error al obtener fechas:', err);
@@ -160,7 +160,7 @@ const GestionarAsistenciaProfesor = () => {
     setError(null);
     
     try {
-      console.log(`Obteniendo asistencias para fecha: ${fecha}`);
+      //console.log(`Obteniendo asistencias para fecha: ${fecha}`);
       
       // Reiniciar asistencia a ceros
       const asistenciaInicial = profesores.reduce((acc, profe) => {
@@ -221,7 +221,7 @@ const GestionarAsistenciaProfesor = () => {
     setError(null);
     
     try {
-      console.log('Preparando datos de asistencia...');
+      //console.log('Preparando datos de asistencia...');
       
       const data = {
         alumnosCurso: Object.keys(asistencia).map((id_usuario) => ({
@@ -232,7 +232,7 @@ const GestionarAsistenciaProfesor = () => {
         })),
       };
       
-      console.log('Enviando datos:', data);
+     // console.log('Enviando datos:', data);
       
       await axios.post(`${API_BASE_URL}/api/usuario/tomarAsistenciaProfesor`, data, { 
         withCredentials: true 
@@ -278,7 +278,7 @@ const GestionarAsistenciaProfesor = () => {
     setError(null);
     
     try {
-      console.log(`Editando asistencia para profesor ${profesorSeleccionado} en fecha ${fechaSeleccionada}`);
+     // console.log(`Editando asistencia para profesor ${profesorSeleccionado} en fecha ${fechaSeleccionada}`);
       
       // Solo enviar la asistencia del profesor seleccionado
       const dataToSend = [{
@@ -288,7 +288,7 @@ const GestionarAsistenciaProfesor = () => {
         retiroAntes: asistencia[profesorSeleccionado].retiroAntes,
       }];
       
-      console.log('Datos a enviar:', dataToSend);
+     // console.log('Datos a enviar:', dataToSend);
       
       await axios.patch(
         `${API_BASE_URL}/api/usuario/editarAsistenciaProfe?fecha=${fechaSeleccionada}`, 
@@ -297,7 +297,7 @@ const GestionarAsistenciaProfesor = () => {
       );
 
       const successMsg = 'Asistencia editada correctamente';
-      console.log(successMsg);
+      //console.log(successMsg);
       setMensaje(successMsg);
       Alert.alert('Éxito', successMsg);
       
@@ -322,12 +322,12 @@ const GestionarAsistenciaProfesor = () => {
   };
 
   const handleProfesorChange = (profesor) => {
-    console.log('Profesor seleccionado:', profesor);
+   // console.log('Profesor seleccionado:', profesor);
     setProfesorSeleccionado(profesor);
   };
 
   const toggleTab = (tab) => {
-    console.log('Cambiando a pestaña:', tab);
+    //console.log('Cambiando a pestaña:', tab);
     setActiveTab(tab);
     setMensaje('');
     setError(null);
