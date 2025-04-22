@@ -8,9 +8,6 @@
     "userInterfaceStyle": "light",
     "scheme": "nexomobile",
     "newArchEnabled": true,
-    "plugins": [
-      
-    ],
     "splash": {
       "image": "./assets/splash-icon.png",
       "resizeMode": "contain",
@@ -24,7 +21,22 @@
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#ffffff"
       },
+      "compileSdkVersion": 36,
+      "targetSdkVersion": 36,
       "intentFilters": [
+        {
+          "action": "VIEW",
+          "data": [
+            {
+              "scheme": "nexomobile",
+              "host": "padre"
+            }
+          ],
+          "category": [
+            "BROWSABLE",
+            "DEFAULT"
+          ]
+        },
         {
           "action": "VIEW",
           "data": [
@@ -48,6 +60,28 @@
       "eas": {
         "projectId": "9845cc2f-5d67-4af8-86df-3d10c82f932c"
       }
+    },
+    "plugins": [
+      [
+        "expo-build-properties",
+        {
+          "android": {
+            "buildToolsVersion": "31.0.0",
+            "compileSdkVersion": 36,
+            "targetSdkVersion": 36,
+            "gradleProperties": {
+              "android.compileSdk": 36
+            }
+          }
+        }
+      ]
+    ],
+    "owner": "martina003",
+    "runtimeVersion": {
+      "policy": "appVersion"
+    },
+    "updates": {
+      "url": "https://u.expo.dev/9845cc2f-5d67-4af8-86df-3d10c82f932c"
     }
   }
 }
